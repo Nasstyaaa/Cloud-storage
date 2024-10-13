@@ -18,6 +18,7 @@ import org.springframework.session.data.redis.config.annotation.web.http.EnableR
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @EnableRedisHttpSession
 @AllArgsConstructor
 public class SecurityConfig {
@@ -42,6 +43,9 @@ public class SecurityConfig {
                         .requestMatchers("/login", "/registration").permitAll()
                         .anyRequest().hasAnyRole("USER", "ADMIN")
                 )
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login"))
                 .csrf((csrf) -> csrf
                         .csrfTokenRepository(new HttpSessionCsrfTokenRepository())
                 )
@@ -50,10 +54,7 @@ public class SecurityConfig {
                         .loginProcessingUrl("/process_login")
                         .defaultSuccessUrl("/hello", true)
                         .failureUrl("/login?error")
-                )
-                .logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/login"));
+                );
 
         return http.build();
     }
