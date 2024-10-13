@@ -30,9 +30,16 @@ dependencies {
     implementation("org.hibernate.validator:hibernate-validator:8.0.1.Final")
     implementation("org.springframework.session:spring-session-data-redis:3.3.2")
     implementation("org.springframework.boot:spring-boot-starter-data-redis:3.3.4")
+
     compileOnly("org.projectlombok:lombok:1.18.34")
+
     annotationProcessor("org.projectlombok:lombok:1.18.34")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.testcontainers:testcontainers:1.19.0")
+    testImplementation("org.testcontainers:junit-jupiter:1.19.0")
+    testImplementation("org.testcontainers:mysql:1.19.0")
+
     runtimeOnly("com.mysql:mysql-connector-j")
 }
 
