@@ -30,6 +30,8 @@ dependencies {
     implementation("org.hibernate.validator:hibernate-validator:8.0.1.Final")
     implementation("org.springframework.session:spring-session-data-redis:3.3.2")
     implementation("org.springframework.boot:spring-boot-starter-data-redis:3.3.4")
+    implementation("org.flywaydb:flyway-core")
+    implementation("org.flywaydb:flyway-mysql")
 
     compileOnly("org.projectlombok:lombok:1.18.34")
 
