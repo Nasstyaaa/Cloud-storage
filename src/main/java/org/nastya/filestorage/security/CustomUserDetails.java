@@ -1,13 +1,15 @@
 package org.nastya.filestorage.security;
 
+import lombok.AllArgsConstructor;
 import org.nastya.filestorage.model.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
 
-public class CustomUserDetails implements org.springframework.security.core.userdetails.UserDetails {
+public class CustomUserDetails implements UserDetails {
     private final User user;
 
     public CustomUserDetails(User user) {
@@ -27,5 +29,9 @@ public class CustomUserDetails implements org.springframework.security.core.user
     @Override
     public String getUsername() {
         return user.getUsername();
+    }
+
+    public Integer getId() {
+        return user.getId();
     }
 }
