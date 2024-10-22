@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Home</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" />
     <style>
         body {
             background: linear-gradient(135deg, #001f3f, #007bff);
@@ -50,17 +51,77 @@
         .content {
             flex: 1;
             display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 20px;
+        }
+        .dropzone {
+            display: flex;
             justify-content: center;
             align-items: center;
+            flex-direction: column;
+            margin-top: 20px;
+            margin-left: 5%;
+            padding: 20px;
+            width: 150px;
+            height: 150px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 2px dashed yellow;
+            border-radius: 10px;
+            color: white;
+            text-align: center;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+            cursor: pointer;
+        }
+        .dropzone.dragover {
+            background-color: rgba(0, 123, 255, 0.2);
+            border-color: #ffeb3b;
+        }
+        .dropzone p {
+            margin: 0;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .dropzone input[type="file"] {
+            display: none;
         }
         .btn-primary {
-            background-color: #007bff;
-            border-color: #007bff;
+            background-color:  #f39c12;
+            border-color:  #f39c12;
             transition: background-color 0.3s ease;
         }
         .btn-primary:hover {
             background-color: #0056b3;
             border-color: #0056b3;
+        }
+        .file-list {
+            margin-top: 20px;
+            margin-left: 5%;
+            width: 300px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 2px solid yellow;
+            border-radius: 10px;
+            padding: 10px;
+        }
+        .file-list ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .file-list ul li {
+            background-color: rgba(255, 255, 255, 0.1);
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            color: white;
+            font-size: 16px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            display: flex;
+            align-items: center; /* Center items vertically */
+        }
+        .file-list ul li span.fa {
+            margin-right: 10px; /* Adjust margin as needed */
         }
     </style>
 </head>
@@ -76,15 +137,58 @@
 </header>
 
 <div class="content">
-    <form th:action="@{/file/upload}" method="post" enctype="multipart/form-data">
-        <div>
-            <label for="file">Choose file to upload</label>
-            <input type="file" id="file" name="file" multiple />
-        </div>
-        <div>
-            <button>Submit</button>
-        </div>
+    <div class="dropzone" id="dropzone">
+        <p>Drag & Drop files here</p>
+        <input type="file" id="file" name="file" multiple />
+    </div>
+
+    <form id="upload-form" th:action="@{/file/upload}" method="post" enctype="multipart/form-data">
+        <input type="file" id="hidden-file-input" name="file" multiple style="display:none;">
+        <button type="submit" class="btn btn-primary" style="margin-top: 20px; margin-left: 70px">Submit</button>
     </form>
+
+    <div class="file-list">
+        <h5>Uploaded Files:</h5>
+        <ul>
+            <li th:each="file : ${files}">
+                <span class="fa fa-file"></span>
+                <span th:text="${file}"></span>
+            </li>
+        </ul>
+    </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const dropzone = document.getElementById('dropzone');
+        const fileInput = document.getElementById('hidden-file-input');
+
+        dropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropzone.classList.add('dragover');
+        });
+
+        dropzone.addEventListener('dragleave', () => {
+            dropzone.classList.remove('dragover');
+        });
+
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            fileInput.files = files;
+        });
+
+        dropzone.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) {
+                dropzone.querySelector('p').textContent = fileInput.files.length + " file(s) selected";
+            }
+        });
+    });
+</script>
 </body>
 </html>

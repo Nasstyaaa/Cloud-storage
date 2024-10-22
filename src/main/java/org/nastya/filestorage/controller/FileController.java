@@ -22,10 +22,12 @@ public class FileController {
     }
 
     @PostMapping("/upload")
-    public String uploadFile(@RequestParam("file") MultipartFile file,
-                                             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        fileService.upload(userDetails.getId(), file);
+    public String uploadFile(@RequestParam("file") MultipartFile[] files,
+                             @AuthenticationPrincipal CustomUserDetails userDetails) {
+        for (MultipartFile file : files) {
+            fileService.upload(userDetails.getId(), file);
+        }
 
-        return "redirect:home";
+        return "redirect:/home";
     }
 }

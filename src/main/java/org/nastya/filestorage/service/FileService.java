@@ -2,6 +2,7 @@ package org.nastya.filestorage.service;
 
 import io.minio.*;
 import io.minio.errors.*;
+import io.minio.messages.Item;
 import org.nastya.filestorage.exception.FileUploadException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -10,6 +11,8 @@ import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class FileService {
@@ -21,6 +24,24 @@ public class FileService {
                         .endpoint("http://localhost:9000")
                         .credentials("nastya_user", "strong_password123")
                         .build();
+    }
+
+    public List<String> findAll(int idUser) {
+        List<String> fileList = new ArrayList<>();
+
+        try {
+            Iterable<Result<Item>> results = minioClient.listObjects(ListObjectsArgs.builder()
+                    .bucket("user-files")
+                    .prefix("user-" + idUser + "-files/")
+                    .build());
+
+            for (Result<Item> result : results) {
+                fileList.add(result.get().objectName().substring(13));
+            }
+        } catch (Exception e) {
+            throw new FileUploadException();
+        }
+        return fileList;
     }
 
     public void upload(int idUser, MultipartFile file) {
