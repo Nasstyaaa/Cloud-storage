@@ -2,13 +2,12 @@ package org.nastya.filestorage.service;
 
 import io.minio.*;
 import io.minio.errors.*;
-import io.minio.messages.Item;
+import org.nastya.filestorage.exception.FileUploadException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
@@ -24,18 +23,22 @@ public class FileService {
                         .build();
     }
 
-    public void uploadFile(int idUser, MultipartFile file) throws IOException, ServerException, InsufficientDataException, ErrorResponseException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
-        minioClient.putObject(
-                PutObjectArgs.builder()
-                        .bucket("user-files")
-                        .object("user-" + idUser + "-files/" + file.getOriginalFilename())
-                        .stream(file.getInputStream(), file.getSize(), -1)
-                        .build());
+    public void upload(int idUser, MultipartFile file) {
+        try {
+            minioClient.putObject(
+                    PutObjectArgs.builder()
+                            .bucket("user-files")
+                            .object("user-" + idUser + "-files/" + file.getOriginalFilename())
+                            .stream(file.getInputStream(), file.getSize(), -1)
+                            .build());
+        } catch (Exception e) {
+            throw new FileUploadException();
+        }
     }
 }
 
 
-        //добавление папки //TODO а если в папке ещё папка
+//добавление папки //TODO а если в папке ещё папка
 //        File folder = new File("helloTests");
 //        for(File file : folder.listFiles()) {
 //            minioClient.putObject(
@@ -46,7 +49,7 @@ public class FileService {
 //                            .build());
 //        }
 
-        //скачивание файла
+//скачивание файла
 //        minioClient.downloadObject(
 //                DownloadObjectArgs.builder()
 //                        .bucket("user-files")
@@ -54,7 +57,7 @@ public class FileService {
 //                        .filename("hello.txt")
 //                        .build());
 
-        //скачивание папки //TODO а если в папке ещё папка
+//скачивание папки //TODO а если в папке ещё папка
 //        try (ZipOutputStream out = new ZipOutputStream(new FileOutputStream("helloTests.zip"))) {
 //
 //            Iterable<Result<Item>> results = minioClient.listObjects(ListObjectsArgs.builder()
@@ -84,7 +87,7 @@ public class FileService {
 //            }
 //        }
 
-        //удалить файл
+//удалить файл
 //        minioClient.removeObject(
 //                RemoveObjectArgs.builder()
 //                        .bucket("user-files")
@@ -92,7 +95,7 @@ public class FileService {
 //                        .build()
 //        );
 
-        //удалить папку //TODO а если в папке ещё папка
+//удалить папку //TODO а если в папке ещё папка
 //        Iterable<Result<Item>> results = minioClient.listObjects(ListObjectsArgs.builder()
 //                .bucket("user-files")
 //                .prefix("test/helloTests/")
@@ -106,5 +109,5 @@ public class FileService {
 //                            .build());
 //        }
 
-        //переименовать файл
+//переименовать файл
 

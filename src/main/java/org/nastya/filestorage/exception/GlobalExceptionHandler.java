@@ -8,9 +8,16 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class GlobalExceptionHandler{
 
     @ExceptionHandler(UserAlreadyExistsException.class)
-    public String handleDataIntegrityViolationException(UserAlreadyExistsException e,
+    public String handleUserAlreadyExistsException(UserAlreadyExistsException e,
                                                         RedirectAttributes redirectAttributes) {
         redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         return "redirect:/registration";
+    }
+
+    @ExceptionHandler(FileUploadException.class)
+    public String handleFileUploadException(FileUploadException e,
+                                            RedirectAttributes redirectAttributes){
+        redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        return "redirect:/home";
     }
 }
