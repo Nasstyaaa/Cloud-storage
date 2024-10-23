@@ -4,6 +4,7 @@ import io.minio.*;
 import io.minio.errors.*;
 import io.minio.messages.Item;
 import org.nastya.filestorage.exception.FileUploadException;
+import org.nastya.filestorage.exception.InternalServerException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,8 +17,9 @@ import java.util.List;
 
 @Service
 public class FileService {
-    private MinioClient minioClient;
+    private final MinioClient minioClient;
 
+    //TODO убрать повторы тут и в папках
     public FileService() {
         minioClient =
                 MinioClient.builder()
@@ -35,11 +37,15 @@ public class FileService {
                     .prefix("user-" + idUser + "-files/")
                     .build());
 
-            for (Result<Item> result : results) {
-                fileList.add(result.get().objectName().substring(13));
+            for (Result<Item> result : results) { //TODO не нравится
+                String file = result.get().objectName();
+
+                if(!file.endsWith("/")) {
+                    fileList.add(file.substring(13));
+                }
             }
         } catch (Exception e) {
-            throw new FileUploadException();
+            throw new InternalServerException();
         }
         return fileList;
     }
@@ -57,18 +63,6 @@ public class FileService {
         }
     }
 }
-
-
-//добавление папки //TODO а если в папке ещё папка
-//        File folder = new File("helloTests");
-//        for(File file : folder.listFiles()) {
-//            minioClient.putObject(
-//                    PutObjectArgs.builder()
-//                            .bucket("user-files")
-//                            .object("test/" + folder.getName() + "/" + file.getName())
-//                            .stream(new FileInputStream(file), file.length(), -1)
-//                            .build());
-//        }
 
 //скачивание файла
 //        minioClient.downloadObject(
