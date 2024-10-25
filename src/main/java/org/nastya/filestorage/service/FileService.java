@@ -1,48 +1,47 @@
 package org.nastya.filestorage.service;
 
 import io.minio.*;
-import io.minio.errors.*;
 import io.minio.messages.Item;
 import org.nastya.filestorage.exception.FileUploadException;
 import org.nastya.filestorage.exception.InternalServerException;
+import org.nastya.filestorage.util.MinioUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.nio.file.FileAlreadyExistsException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class FileService {
+
+    @Value("${minio.bucket}")
+    private String bucket;
+
     private final MinioClient minioClient;
 
-    //TODO убрать повторы тут и в папках
+    @Autowired
     public FileService(MinioClient minioClient) {
         this.minioClient = minioClient;
     }
 
-    public List<String> findAll(int idUser) {
+    public List<String> getAll(int idUser) {
         List<String> fileList = new ArrayList<>();
 
-        try {
-            Iterable<Result<Item>> results = minioClient.listObjects(ListObjectsArgs.builder()
-                    .bucket("user-files")
-                    .prefix("user-" + idUser + "-files/")
-                    .build());
 
-            for (Result<Item> result : results) {
-                String file = result.get().objectName();
+        Iterable<Result<Item>> results = MinioUtil.getAllFolderObjects(minioClient, MinioUtil.getUserFolder(idUser));
+        results.forEach(itemResult -> {
+            try {
+                String file = itemResult.get().objectName();
 
-                if(!file.endsWith("/")) {
+                if (!file.endsWith("/")) {
                     fileList.add(file.split("/")[1]);
                 }
+            } catch (Exception e) {
+                throw new InternalServerException();
             }
-        } catch (Exception e) {
-            throw new InternalServerException();
-        }
+        });
         return fileList;
     }
 
@@ -50,8 +49,8 @@ public class FileService {
         try {
             minioClient.putObject(
                     PutObjectArgs.builder()
-                            .bucket("user-files")
-                            .object("user-" + idUser + "-files/" + file.getOriginalFilename())
+                            .bucket(bucket)
+                            .object(MinioUtil.getUserFolder(idUser) + file.getOriginalFilename())
                             .stream(file.getInputStream(), file.getSize(), -1)
                             .build());
         } catch (Exception e) {
