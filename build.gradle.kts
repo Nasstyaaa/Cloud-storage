@@ -33,7 +33,6 @@ dependencies {
     implementation("org.flywaydb:flyway-core")
     implementation("org.flywaydb:flyway-mysql")
     implementation("io.minio:minio:8.5.12")
-
     compileOnly("org.projectlombok:lombok:1.18.34")
 
     annotationProcessor("org.projectlombok:lombok:1.18.34")

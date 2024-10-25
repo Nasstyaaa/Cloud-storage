@@ -20,13 +20,9 @@ public class FolderService {
     private final MinioClient minioClient;
 
     @Autowired
-    public FolderService(FileService fileService) {
+    public FolderService(FileService fileService, MinioClient minioClient) {
         this.fileService = fileService;
-        minioClient =
-                MinioClient.builder()
-                        .endpoint("http://localhost:9000")
-                        .credentials("nastya_user", "strong_password123")
-                        .build();
+        this.minioClient = minioClient;
     }
 
     public List<String> findAll(int idUser) {

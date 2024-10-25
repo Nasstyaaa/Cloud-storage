@@ -20,12 +20,8 @@ public class FileService {
     private final MinioClient minioClient;
 
     //TODO убрать повторы тут и в папках
-    public FileService() {
-        minioClient =
-                MinioClient.builder()
-                        .endpoint("http://localhost:9000")
-                        .credentials("nastya_user", "strong_password123")
-                        .build();
+    public FileService(MinioClient minioClient) {
+        this.minioClient = minioClient;
     }
 
     public List<String> findAll(int idUser) {
