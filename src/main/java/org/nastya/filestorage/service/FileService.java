@@ -37,11 +37,11 @@ public class FileService {
                     .prefix("user-" + idUser + "-files/")
                     .build());
 
-            for (Result<Item> result : results) { //TODO не нравится
+            for (Result<Item> result : results) {
                 String file = result.get().objectName();
 
                 if(!file.endsWith("/")) {
-                    fileList.add(file.substring(13));
+                    fileList.add(file.split("/")[1]);
                 }
             }
         } catch (Exception e) {

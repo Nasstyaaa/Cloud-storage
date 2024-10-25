@@ -51,9 +51,14 @@
         .content {
             flex: 1;
             display: flex;
+            padding: 20px;
+            gap: 20px;
+        }
+        .column {
+            display: flex;
             flex-direction: column;
             align-items: flex-start;
-            padding: 20px;
+            width: 50%;
         }
         .dropzone {
             display: flex;
@@ -61,7 +66,6 @@
             align-items: center;
             flex-direction: column;
             margin-top: 20px;
-            margin-left: 5%;
             padding: 20px;
             width: 150px;
             height: 150px;
@@ -86,28 +90,28 @@
             display: none;
         }
         .btn-primary {
-            background-color:  #f39c12;
-            border-color:  #f39c12;
+            background-color: #f39c12;
+            border-color: #f39c12;
             transition: background-color 0.3s ease;
+            margin-top: 20px; /* Space above the button */
         }
         .btn-primary:hover {
             background-color: #0056b3;
             border-color: #0056b3;
         }
-        .file-list {
+        .file-list, .folder-list {
             margin-top: 20px;
-            margin-left: 5%;
-            width: 300px;
+            width: 100%;
             background-color: rgba(255, 255, 255, 0.1);
             border: 2px solid yellow;
             border-radius: 10px;
             padding: 10px;
         }
-        .file-list ul {
+        .file-list ul, .folder-list ul {
             list-style-type: none;
             padding: 0;
         }
-        .file-list ul li {
+        .file-list ul li, .folder-list ul li {
             background-color: rgba(255, 255, 255, 0.1);
             margin-bottom: 10px;
             padding: 10px;
@@ -118,10 +122,10 @@
             text-overflow: ellipsis;
             white-space: nowrap;
             display: flex;
-            align-items: center; /* Center items vertically */
+            align-items: center;
         }
-        .file-list ul li span.fa {
-            margin-right: 10px; /* Adjust margin as needed */
+        .file-list ul li span.fa, .folder-list ul li span.fa {
+            margin-right: 10px;
         }
     </style>
 </head>
@@ -137,58 +141,135 @@
 </header>
 
 <div class="content">
-    <div class="dropzone" id="dropzone">
-        <p>Drag & Drop files here</p>
-        <input type="file" id="file" name="file" multiple />
+
+    <div class="column">
+        <div class="dropzone" id="file-dropzone">
+            <p>Drag & Drop files here</p>
+            <input type="file" id="file" name="file" multiple />
+        </div>
+
+        <form id="upload-form" th:action="@{/file/upload}" method="post" enctype="multipart/form-data">
+            <input type="file" id="hidden-file-input" name="file" multiple style="display:none;">
+            <button type="submit" class="btn btn-primary">Submit Files</button>
+        </form>
+
+        <div class="file-list">
+            <h5>Uploaded Files:</h5>
+            <ul>
+                <li th:each="file : ${files}">
+                    <span class="fa fa-file"></span>
+                    <span th:text="${file}"></span>
+                </li>
+            </ul>
+        </div>
     </div>
 
-    <form id="upload-form" th:action="@{/file/upload}" method="post" enctype="multipart/form-data">
-        <input type="file" id="hidden-file-input" name="file" multiple style="display:none;">
-        <button type="submit" class="btn btn-primary" style="margin-top: 20px; margin-left: 70px">Submit</button>
-    </form>
 
-    <div class="file-list">
-        <h5>Uploaded Files:</h5>
-        <ul>
-            <li th:each="file : ${files}">
-                <span class="fa fa-file"></span>
-                <span th:text="${file}"></span>
-            </li>
-        </ul>
+    <div class="column">
+        <div class="dropzone" id="folder-dropzone">
+            <p>Drag & Drop folders here</p>
+            <input type="file" id="folder" name="folder" webkitdirectory directory style="display:none;">
+        </div>
+
+        <form id="folder-upload-form" th:action="@{/folder/upload}" method="post" enctype="multipart/form-data">
+            <input type="file" id="hidden-folder-input" name="folder" webkitdirectory directory style="display:none;">
+            <button type="submit" class="btn btn-primary">Submit Folders</button>
+        </form>
+
+        <div class="folder-list">
+            <h5>Uploaded Folders:</h5>
+            <ul>
+                <li th:each="folder : ${folders}">
+                    <span class="fa fa-folder"></span>
+                    <span th:text="${folder}"></span>
+                </li>
+            </ul>
+        </div>
     </div>
 </div>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const dropzone = document.getElementById('dropzone');
+        const fileDropzone = document.getElementById('file-dropzone');
+        const folderDropzone = document.getElementById('folder-dropzone');
         const fileInput = document.getElementById('hidden-file-input');
+        const folderInput = document.getElementById('hidden-folder-input');
 
-        dropzone.addEventListener('dragover', (e) => {
+        // File Dropzone Events
+        fileDropzone.addEventListener('dragover', (e) => {
             e.preventDefault();
-            dropzone.classList.add('dragover');
+            fileDropzone.classList.add('dragover');
         });
 
-        dropzone.addEventListener('dragleave', () => {
-            dropzone.classList.remove('dragover');
+        fileDropzone.addEventListener('dragleave', () => {
+            fileDropzone.classList.remove('dragover');
         });
 
-        dropzone.addEventListener('drop', (e) => {
+        fileDropzone.addEventListener('drop', (e) => {
             e.preventDefault();
-            dropzone.classList.remove('dragover');
+            fileDropzone.classList.remove('dragover');
             const files = e.dataTransfer.files;
             fileInput.files = files;
+            fileDropzone.querySelector('p').textContent = fileInput.files.length + " file(s) selected";
         });
 
-        dropzone.addEventListener('click', () => {
+        fileDropzone.addEventListener('click', () => {
             fileInput.click();
         });
 
         fileInput.addEventListener('change', () => {
             if (fileInput.files.length > 0) {
-                dropzone.querySelector('p').textContent = fileInput.files.length + " file(s) selected";
+                fileDropzone.querySelector('p').textContent = fileInput.files.length + " file(s) selected";
+            }
+        });
+
+        folderDropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            folderDropzone.classList.add('dragover');
+        });
+
+        folderDropzone.addEventListener('dragleave', () => {
+            folderDropzone.classList.remove('dragover');
+        });
+
+        folderDropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            folderDropzone.classList.remove('dragover');
+            const items = e.dataTransfer.items;
+            const folderFiles = [];
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].kind === 'file') {
+                    const file = items[i].getAsFile();
+                    if (file) {
+                        folderFiles.push(file.webkitRelativePath.split('/')[0]); // Get folder name
+                    }
+                }
+            }
+            folderInput.files = new FileListItems(folderFiles); // Simulate folder input
+            folderDropzone.querySelector('p').textContent = folderFiles.length + " folder(s) selected";
+        });
+
+        folderDropzone.addEventListener('click', () => {
+            folderInput.click();
+        });
+
+        folderInput.addEventListener('change', () => {
+            if (folderInput.files.length > 0) {
+                const folderNames = Array.from(folderInput.files).map(file => file.webkitRelativePath.split('/')[0]);
+                folderDropzone.querySelector('p').textContent = folderNames.join(', ') + " folders selected";
             }
         });
     });
+
+
+    function FileListItems(files) {
+        const dataTransfer = new DataTransfer();
+        files.forEach(file => {
+            const fakeFile = new File([], file);
+            dataTransfer.items.add(fakeFile);
+        });
+        return dataTransfer.files;
+    }
 </script>
 </body>
 </html>

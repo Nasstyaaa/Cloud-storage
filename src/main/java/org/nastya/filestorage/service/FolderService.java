@@ -4,11 +4,13 @@ import io.minio.ListObjectsArgs;
 import io.minio.MinioClient;
 import io.minio.Result;
 import io.minio.messages.Item;
+import org.nastya.filestorage.exception.FolderUploadException;
 import org.nastya.filestorage.exception.InternalServerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,8 +40,8 @@ public class FolderService {
             for(Result<Item> result : results){
                 String folder = result.get().objectName();
 
-                if(folder.endsWith("/")){
-                    folderList.add(folder.substring(13));
+                if(folder.endsWith("/") && !folder.equals("user-" + idUser + "-files/")){
+                    folderList.add(folder.split("/")[1]);
                 }
             }
         } catch (Exception e){
@@ -51,11 +53,25 @@ public class FolderService {
 
     public void upload(int idUser, MultipartFile[] files){
         for(MultipartFile file : files){
+
             if(!file.getOriginalFilename().endsWith("/")){
                 fileService.upload(idUser, file);
             }
             else {
-                // грузить опять папку
+                try {
+                    Iterable<Result<Item>> results = minioClient.listObjects(ListObjectsArgs.builder()
+                            .bucket("user-files")
+                            .prefix("user-" + idUser + "-files/" + file.getOriginalFilename().split("/")[0])
+                            .build());
+
+                    List<MultipartFile> newFiles = new ArrayList<>();
+                    for (Result<Item> result : results) {
+                        newFiles.add((MultipartFile) result.get());
+                    }
+                    upload(idUser, newFiles.toArray(new MultipartFile[0]));
+                } catch (Exception e){
+                    throw new FolderUploadException();
+                }
             }
         }
     }
