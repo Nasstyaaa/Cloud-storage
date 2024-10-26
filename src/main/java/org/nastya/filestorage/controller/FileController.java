@@ -41,8 +41,6 @@ public class FileController {
     @GetMapping("/download")
     public ResponseEntity<ByteArrayResource> downloadFile(@RequestParam("file") String file,
                                                           @AuthenticationPrincipal CustomUserDetails userDetails){
-        System.out.println(file);
-
         ByteArrayResource fileData = fileService.download(userDetails.getId(), file);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\""

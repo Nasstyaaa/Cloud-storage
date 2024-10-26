@@ -75,36 +75,6 @@ public class FileService {
     }
 }
 
-//скачивание папки //TODO а если в папке ещё папка
-//        try (ZipOutputStream out = new ZipOutputStream(new FileOutputStream("helloTests.zip"))) {
-//
-//            Iterable<Result<Item>> results = minioClient.listObjects(ListObjectsArgs.builder()
-//                    .bucket("user-files")
-//                    .prefix("test/helloTests/")
-//                    .build());
-//
-//            for (Result<Item> result : results) {
-//                ZipEntry zipEntry = new ZipEntry(result.get().objectName().substring(5));
-//                out.putNextEntry(zipEntry);
-//
-//                File tempFile = new File("temp");
-//
-//                minioClient.downloadObject(
-//                        DownloadObjectArgs.builder()
-//                                .bucket("user-files")
-//                                .object(result.get().objectName())
-//                                .filename(tempFile.getAbsolutePath())
-//                                .build());
-//
-//                try (FileInputStream fis = new FileInputStream(tempFile)) {
-//                    byte[] buffer = fis.readAllBytes();
-//                    out.write(buffer, 0, buffer.length);
-//                }
-//                out.closeEntry();
-//                tempFile.delete();
-//            }
-//        }
-
 //удалить файл
 //        minioClient.removeObject(
 //                RemoveObjectArgs.builder()

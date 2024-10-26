@@ -191,11 +191,14 @@
                 <li th:each="folder : ${folders}">
                     <span class="fa fa-folder"></span>
                     <span th:text="${folder}"></span>
+                    <a th:href="@{/folder/download(folder=${folder})}" class="btn btn-sm btn-outline-light ml-3" title="Download">
+                        <span class="fa fa-download"></span>
+                    </a>
                 </li>
             </ul>
         </div>
+
     </div>
-</div>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -250,7 +253,7 @@
                 if (items[i].kind === 'file') {
                     const file = items[i].getAsFile();
                     if (file) {
-                        folderFiles.push(file.webkitRelativePath.split('/')[0]); // Get folder name
+                        folderFiles.push(file.webkitRelativePath.split('/')[0] + '/');
                     }
                 }
             }

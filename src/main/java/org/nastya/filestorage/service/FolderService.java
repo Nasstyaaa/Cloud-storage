@@ -1,19 +1,22 @@
 package org.nastya.filestorage.service;
 
-import io.minio.ListObjectsArgs;
-import io.minio.MinioClient;
-import io.minio.Result;
+import io.minio.*;
 import io.minio.messages.Item;
+import org.nastya.filestorage.exception.FolderDownloadException;
 import org.nastya.filestorage.exception.FolderUploadException;
 import org.nastya.filestorage.exception.InternalServerException;
 import org.nastya.filestorage.util.MinioUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 @Service
 public class FolderService {
@@ -71,4 +74,43 @@ public class FolderService {
             }
         }
     }
+
+
+    public ByteArrayResource download(int idUser, String folder) {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+
+        try (ZipOutputStream zipOutputStream = new ZipOutputStream(byteArrayOutputStream)) {
+            addItemsToZip(MinioUtil.getUserFolder(idUser) + folder + "/", zipOutputStream, idUser);
+        } catch (Exception e) {
+            throw new FolderDownloadException();
+        }
+
+        return new ByteArrayResource(byteArrayOutputStream.toByteArray());
+    }
+
+    private void addItemsToZip(String path, ZipOutputStream zipOutputStream, int idUser) throws Exception {
+        Iterable<Result<Item>> results = MinioUtil.getAllFolderObjects(minioClient, bucket, path);
+
+        for (Result<Item> itemResult : results) {
+            String objectName = itemResult.get().objectName();
+            String objectWithoutUserPrefix = objectName.substring(MinioUtil.getUserFolder(idUser).length());
+
+            if (objectWithoutUserPrefix.endsWith("/")) {
+                zipOutputStream.putNextEntry(new ZipEntry(objectWithoutUserPrefix));
+                addItemsToZip(MinioUtil.getUserFolder(idUser) + objectWithoutUserPrefix, zipOutputStream, idUser);
+                zipOutputStream.closeEntry();
+            } else {
+                addFileToZip(objectWithoutUserPrefix, zipOutputStream, idUser);
+            }
+        }
+    }
+
+    private void addFileToZip(String fileName, ZipOutputStream zipOutputStream, int idUser) throws Exception {
+        ByteArrayResource object = fileService.download(idUser, fileName);
+        zipOutputStream.putNextEntry(new ZipEntry(fileName));
+        zipOutputStream.write(object.getByteArray(), 0, object.getByteArray().length);
+        zipOutputStream.closeEntry();
+    }
+
+
 }
