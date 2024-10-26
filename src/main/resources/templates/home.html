@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Home</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+          integrity="sha512-..." crossorigin="anonymous"/>
     <style>
         body {
             background: linear-gradient(135deg, #001f3f, #007bff);
@@ -15,6 +16,7 @@
             flex-direction: column;
             margin: 0;
         }
+
         .header {
             display: flex;
             justify-content: space-between;
@@ -25,41 +27,49 @@
             border-bottom: 2px solid white;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
+
         .header h1 {
             margin: 0;
             font-size: 24px;
         }
+
         .header .user-info {
             display: flex;
             align-items: center;
         }
+
         .header .user-info p {
             margin: 0;
             margin-right: 20px;
             font-size: 16px;
         }
+
         .header .btn-link {
             color: #f39c12;
             text-decoration: none;
             font-weight: bold;
             transition: color 0.3s ease;
         }
+
         .header .btn-link:hover {
             color: #d35400;
             text-decoration: underline;
         }
+
         .content {
             flex: 1;
             display: flex;
             padding: 20px;
             gap: 20px;
         }
+
         .column {
             display: flex;
             flex-direction: column;
             align-items: flex-start;
             width: 50%;
         }
+
         .dropzone {
             display: flex;
             justify-content: center;
@@ -77,28 +87,34 @@
             transition: background-color 0.3s ease, border-color 0.3s ease;
             cursor: pointer;
         }
+
         .dropzone.dragover {
             background-color: rgba(0, 123, 255, 0.2);
             border-color: #ffeb3b;
         }
+
         .dropzone p {
             margin: 0;
             font-size: 16px;
             font-weight: bold;
         }
+
         .dropzone input[type="file"] {
             display: none;
         }
+
         .btn-primary {
             background-color: #f39c12;
             border-color: #f39c12;
             transition: background-color 0.3s ease;
             margin-top: 20px; /* Space above the button */
         }
+
         .btn-primary:hover {
             background-color: #0056b3;
             border-color: #0056b3;
         }
+
         .file-list, .folder-list {
             margin-top: 20px;
             width: 100%;
@@ -107,10 +123,12 @@
             border-radius: 10px;
             padding: 10px;
         }
+
         .file-list ul, .folder-list ul {
             list-style-type: none;
             padding: 0;
         }
+
         .file-list ul li, .folder-list ul li {
             background-color: rgba(255, 255, 255, 0.1);
             margin-bottom: 10px;
@@ -124,9 +142,11 @@
             display: flex;
             align-items: center;
         }
+
         .file-list ul li span.fa, .folder-list ul li span.fa {
             margin-right: 10px;
         }
+
         .file-list ul li span.file-name {
             max-width: 300px;
             overflow: hidden;
@@ -151,7 +171,7 @@
     <div class="column">
         <div class="dropzone" id="file-dropzone">
             <p>Drag & Drop files here</p>
-            <input type="file" id="file" name="file" multiple />
+            <input type="file" id="file" name="file" multiple/>
         </div>
 
         <form id="upload-form" th:action="@{/file/upload}" method="post" enctype="multipart/form-data">
@@ -165,9 +185,16 @@
                 <li th:each="file : ${files}">
                     <span class="fa fa-file"></span>
                     <span class="file-name" th:text="${file}"></span>
-                    <a th:href="@{/file/download(file=${file})}" class="btn btn-sm btn-outline-light ml-3" title="Download">
+                    <a th:href="@{/file/download(file=${file})}" class="btn btn-sm btn-outline-light ml-3"
+                       title="Download">
                         <span class="fa fa-download"></span>
                     </a>
+                    <form th:action="@{file/remove}" method="post" style="display:inline;">
+                        <input type="hidden" name="file" th:value="${file}"/>
+                        <button type="submit" class="btn btn-sm btn-outline-danger ml-2" title="Remove">
+                            <span class="fa fa-trash"></span>
+                        </button>
+                    </form>
                 </li>
             </ul>
         </div>
@@ -191,7 +218,8 @@
                 <li th:each="folder : ${folders}">
                     <span class="fa fa-folder"></span>
                     <span th:text="${folder}"></span>
-                    <a th:href="@{/folder/download(folder=${folder})}" class="btn btn-sm btn-outline-light ml-3" title="Download">
+                    <a th:href="@{/folder/download(folder=${folder})}" class="btn btn-sm btn-outline-light ml-3"
+                       title="Download">
                         <span class="fa fa-download"></span>
                     </a>
                 </li>
@@ -199,6 +227,7 @@
         </div>
 
     </div>
+</div>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -207,7 +236,6 @@
         const fileInput = document.getElementById('hidden-file-input');
         const folderInput = document.getElementById('hidden-folder-input');
 
-        // File Dropzone Events
         fileDropzone.addEventListener('dragover', (e) => {
             e.preventDefault();
             fileDropzone.classList.add('dragover');

@@ -8,10 +8,7 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URLEncoder;
@@ -48,5 +45,13 @@ public class FileController {
                 .body(fileData);
 
     }
+
+    @PostMapping("/remove")
+    public String removeFile(@RequestParam("file") String file,
+                             @AuthenticationPrincipal CustomUserDetails userDetails){
+        fileService.remove(userDetails.getId(), file);
+        return "redirect:/home";
+    }
+
 
 }

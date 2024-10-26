@@ -37,7 +37,7 @@ public class FolderController {
     }
 
     @GetMapping("/download")
-    public ResponseEntity<ByteArrayResource> downloadFile(@RequestParam("folder") String folder,
+    public ResponseEntity<ByteArrayResource> downloadFolder(@RequestParam("folder") String folder,
                                                           @AuthenticationPrincipal CustomUserDetails userDetails){
         ByteArrayResource fileData = folderService.download(userDetails.getId(), folder);
         return ResponseEntity.ok()

@@ -73,15 +73,21 @@ public class FileService {
             throw new FileDownloadException();
         }
     }
-}
 
-//удалить файл
-//        minioClient.removeObject(
-//                RemoveObjectArgs.builder()
-//                        .bucket("user-files")
-//                        .object("test/hello.txt")
-//                        .build()
-//        );
+
+    public void remove(int idUser, String file) {
+        try {
+            minioClient.removeObject(
+                    RemoveObjectArgs.builder()
+                            .bucket(bucket)
+                            .object(MinioUtil.getUserFolder(idUser) + file)
+                            .build()
+            );
+        } catch (Exception e){
+
+        }
+    }
+}
 
 //удалить папку //TODO а если в папке ещё папка
 //        Iterable<Result<Item>> results = minioClient.listObjects(ListObjectsArgs.builder()
