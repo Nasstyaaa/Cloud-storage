@@ -127,6 +127,12 @@
         .file-list ul li span.fa, .folder-list ul li span.fa {
             margin-right: 10px;
         }
+        .file-list ul li span.file-name {
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
     </style>
 </head>
 <body>
@@ -158,7 +164,10 @@
             <ul>
                 <li th:each="file : ${files}">
                     <span class="fa fa-file"></span>
-                    <span th:text="${file}"></span>
+                    <span class="file-name" th:text="${file}"></span>
+                    <a th:href="@{/file/download(file=${file})}" class="btn btn-sm btn-outline-light ml-3" title="Download">
+                        <span class="fa fa-download"></span>
+                    </a>
                 </li>
             </ul>
         </div>

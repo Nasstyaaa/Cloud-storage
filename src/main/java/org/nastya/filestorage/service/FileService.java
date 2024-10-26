@@ -2,14 +2,17 @@ package org.nastya.filestorage.service;
 
 import io.minio.*;
 import io.minio.messages.Item;
+import org.nastya.filestorage.exception.FileDownloadException;
 import org.nastya.filestorage.exception.FileUploadException;
 import org.nastya.filestorage.exception.InternalServerException;
 import org.nastya.filestorage.util.MinioUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +33,7 @@ public class FileService {
         List<String> fileList = new ArrayList<>();
 
 
-        Iterable<Result<Item>> results = MinioUtil.getAllFolderObjects(minioClient, MinioUtil.getUserFolder(idUser));
+        Iterable<Result<Item>> results = MinioUtil.getAllFolderObjects(minioClient, bucket, MinioUtil.getUserFolder(idUser));
         results.forEach(itemResult -> {
             try {
                 String file = itemResult.get().objectName();
@@ -57,15 +60,20 @@ public class FileService {
             throw new FileUploadException();
         }
     }
-}
 
-//скачивание файла
-//        minioClient.downloadObject(
-//                DownloadObjectArgs.builder()
-//                        .bucket("user-files")
-//                        .object("test/hello.txt")
-//                        .filename("hello.txt")
-//                        .build());
+    public ByteArrayResource download(int idUser, String file) {
+        try {
+            GetObjectResponse object = minioClient.getObject(
+                    GetObjectArgs.builder()
+                            .bucket(bucket)
+                            .object(MinioUtil.getUserFolder(idUser) + file)
+                            .build());
+            return new ByteArrayResource(object.readAllBytes());
+        } catch (Exception e) {
+            throw new FileDownloadException();
+        }
+    }
+}
 
 //скачивание папки //TODO а если в папке ещё папка
 //        try (ZipOutputStream out = new ZipOutputStream(new FileOutputStream("helloTests.zip"))) {

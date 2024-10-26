@@ -34,7 +34,7 @@ public class FolderService {
     public List<String> getAll(int idUser) {
         List<String> folderList = new ArrayList<>();
 
-        Iterable<Result<Item>> results = MinioUtil.getAllFolderObjects(minioClient, MinioUtil.getUserFolder(idUser));
+        Iterable<Result<Item>> results = MinioUtil.getAllFolderObjects(minioClient, bucket, MinioUtil.getUserFolder(idUser));
         results.forEach(itemResult -> {
             try {
                 String folder = itemResult.get().objectName();
@@ -56,7 +56,7 @@ public class FolderService {
             if (!file.getOriginalFilename().endsWith("/")) {
                 fileService.upload(idUser, file);
             } else {
-                Iterable<Result<Item>> results = MinioUtil.getAllFolderObjects(minioClient,
+                Iterable<Result<Item>> results = MinioUtil.getAllFolderObjects(minioClient, bucket,
                         MinioUtil.getUserFolder(idUser) + file.getOriginalFilename().split("/")[0]);
 
                 List<MultipartFile> newFiles = new ArrayList<>();
