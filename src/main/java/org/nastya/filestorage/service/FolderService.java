@@ -2,6 +2,7 @@ package org.nastya.filestorage.service;
 
 import io.minio.*;
 import io.minio.messages.Item;
+import org.nastya.filestorage.exception.FolderDeleteException;
 import org.nastya.filestorage.exception.FolderDownloadException;
 import org.nastya.filestorage.exception.FolderUploadException;
 import org.nastya.filestorage.exception.InternalServerException;
@@ -75,12 +76,32 @@ public class FolderService {
         }
     }
 
+    public void remove(int idUser, String folder) {
+        Iterable<Result<Item>> results = MinioUtil.getAllFolderObjects(minioClient, bucket,
+                MinioUtil.getUserFolder(idUser) + folder);
+
+        results.forEach(itemResult -> {
+            try {
+                String objectName = itemResult.get().objectName();
+                String objectWithoutUserPrefix = objectName.substring(MinioUtil.getUserFolder(idUser).length());
+
+                if (objectName.endsWith("/")) {
+                    remove(idUser, objectWithoutUserPrefix);
+                } else {
+                    fileService.remove(idUser, objectWithoutUserPrefix);
+                }
+            } catch (Exception e) {
+                throw new FolderDeleteException();
+            }
+        });
+    }
+
 
     public ByteArrayResource download(int idUser, String folder) {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
         try (ZipOutputStream zipOutputStream = new ZipOutputStream(byteArrayOutputStream)) {
-            addItemsToZip(MinioUtil.getUserFolder(idUser) + folder + "/", zipOutputStream, idUser);
+            addItemsToZip(MinioUtil.getUserFolder(idUser) + folder, zipOutputStream, idUser);
         } catch (Exception e) {
             throw new FolderDownloadException();
         }

@@ -2,9 +2,7 @@ package org.nastya.filestorage.service;
 
 import io.minio.*;
 import io.minio.messages.Item;
-import org.nastya.filestorage.exception.FileDownloadException;
-import org.nastya.filestorage.exception.FileUploadException;
-import org.nastya.filestorage.exception.InternalServerException;
+import org.nastya.filestorage.exception.*;
 import org.nastya.filestorage.util.MinioUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,7 +10,6 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -83,25 +80,9 @@ public class FileService {
                             .object(MinioUtil.getUserFolder(idUser) + file)
                             .build()
             );
-        } catch (Exception e){
-
+        } catch (Exception e) {
+            throw new FileDeleteException();
         }
     }
 }
-
-//удалить папку //TODO а если в папке ещё папка
-//        Iterable<Result<Item>> results = minioClient.listObjects(ListObjectsArgs.builder()
-//                .bucket("user-files")
-//                .prefix("test/helloTests/")
-//                .build());
-//
-//        for (Result<Item> result : results) {
-//            minioClient.removeObject(
-//                    RemoveObjectArgs.builder()
-//                            .bucket("user-files")
-//                            .object(result.get().objectName())
-//                            .build());
-//        }
-
-//переименовать файл
 

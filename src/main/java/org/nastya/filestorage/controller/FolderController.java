@@ -30,7 +30,7 @@ public class FolderController {
 
     @PostMapping("/upload")
     public String uploadFolder(@RequestParam("folder") MultipartFile[] files,
-                               @AuthenticationPrincipal CustomUserDetails userDetails){
+                               @AuthenticationPrincipal CustomUserDetails userDetails) {
         folderService.upload(userDetails.getId(), files);
 
         return "redirect:/home";
@@ -38,12 +38,20 @@ public class FolderController {
 
     @GetMapping("/download")
     public ResponseEntity<ByteArrayResource> downloadFolder(@RequestParam("folder") String folder,
-                                                          @AuthenticationPrincipal CustomUserDetails userDetails){
-        ByteArrayResource fileData = folderService.download(userDetails.getId(), folder);
+                                                            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        ByteArrayResource fileData = folderService.download(userDetails.getId(), folder + "/"); //TODO поправить фронт
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\""
                         + URLEncoder.encode(folder, StandardCharsets.UTF_8) + ".zip\"")
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(fileData);
+    }
+
+    @PostMapping("/remove")
+    public String removeFolder(@RequestParam("folder") String folder,
+                               @AuthenticationPrincipal CustomUserDetails userDetails) {
+        folderService.remove(userDetails.getId(), folder + "/");
+
+        return "redirect:/home";
     }
 }
