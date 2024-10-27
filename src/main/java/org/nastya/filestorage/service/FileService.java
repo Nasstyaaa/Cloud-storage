@@ -84,5 +84,29 @@ public class FileService {
             throw new FileDeleteException();
         }
     }
+
+
+    public void rename(int idUser, String sourceName, String newName) {
+        try {
+            minioClient.copyObject(CopyObjectArgs.builder()
+                    .bucket(bucket)
+                    .object(MinioUtil.getUserFolder(idUser) + newName + getFileExtension(sourceName))
+                    .source(CopySource.builder()
+                            .bucket(bucket)
+                            .object(MinioUtil.getUserFolder(idUser) + sourceName)
+                            .build())
+                    .build());
+
+            remove(idUser, sourceName);
+
+        } catch (Exception e) {
+
+        }
+    }
+
+    private String getFileExtension(String fileName) {
+        int lastDotIndex = fileName.lastIndexOf('.');
+        return (lastDotIndex > 0 ? fileName.substring(lastDotIndex) : "");
+    }
 }
 

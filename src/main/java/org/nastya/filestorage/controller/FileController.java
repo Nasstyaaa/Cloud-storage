@@ -54,4 +54,12 @@ public class FileController {
     }
 
 
+    @PostMapping("/rename")
+    public String renameFile(@RequestParam("fileName") String sourceFile, @RequestParam("newFile") String newFile,
+                             @AuthenticationPrincipal CustomUserDetails userDetails){
+        fileService.rename(userDetails.getId(), sourceFile, newFile);
+
+        return "redirect:/home";
+    }
+
 }

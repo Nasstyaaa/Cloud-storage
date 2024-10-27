@@ -189,10 +189,19 @@
                        title="Download">
                         <span class="fa fa-download"></span>
                     </a>
+
                     <form th:action="@{file/remove}" method="post" style="display:inline;">
                         <input type="hidden" name="file" th:value="${file}"/>
                         <button type="submit" class="btn btn-sm btn-outline-danger ml-2" title="Remove">
                             <span class="fa fa-trash"></span>
+                        </button>
+                    </form>
+
+                    <form th:action="@{file/rename}" method="post" style="display:inline; margin-left: 10px;">
+                        <input type="hidden" name="fileName" th:value="${file}"/>
+                        <input type="text" name="newFile" placeholder="New name" class="form-control form-control-sm d-inline-block" style="width: auto; display: inline;"/>
+                        <button type="submit" class="btn btn-sm btn-outline-warning" title="Rename">
+                            <span class="fa fa-edit"></span>
                         </button>
                     </form>
                 </li>
@@ -228,6 +237,7 @@
                             <span class="fa fa-trash"></span>
                         </button>
                     </form>
+
                 </li>
             </ul>
         </div>
