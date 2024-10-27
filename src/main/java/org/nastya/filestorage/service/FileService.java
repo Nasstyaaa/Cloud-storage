@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class FileService {
+public class FileService extends ObjectService {
 
     @Value("${minio.bucket}")
     private String bucket;
@@ -23,26 +23,12 @@ public class FileService {
 
     @Autowired
     public FileService(MinioClient minioClient) {
+        super(minioClient);
         this.minioClient = minioClient;
     }
 
     public List<String> getAll(int idUser) {
-        List<String> fileList = new ArrayList<>();
-
-
-        Iterable<Result<Item>> results = MinioUtil.getAllFolderObjects(minioClient, bucket, MinioUtil.getUserFolder(idUser));
-        results.forEach(itemResult -> {
-            try {
-                String file = itemResult.get().objectName();
-
-                if (!file.endsWith("/")) {
-                    fileList.add(file.split("/")[1]);
-                }
-            } catch (Exception e) {
-                throw new InternalServerException();
-            }
-        });
-        return fileList;
+        return getAll(idUser, true);
     }
 
     public void upload(int idUser, MultipartFile file) {

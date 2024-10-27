@@ -17,7 +17,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 @Service
-public class FolderService {
+public class FolderService extends ObjectService{
 
     @Value("${minio.bucket}")
     private String bucket;
@@ -27,27 +27,13 @@ public class FolderService {
 
     @Autowired
     public FolderService(FileService fileService, MinioClient minioClient) {
+        super(minioClient);
         this.fileService = fileService;
         this.minioClient = minioClient;
     }
 
-    //TODO может ещё сократить
     public List<String> getAll(int idUser) {
-        List<String> folderList = new ArrayList<>();
-
-        Iterable<Result<Item>> results = MinioUtil.getAllFolderObjects(minioClient, bucket, MinioUtil.getUserFolder(idUser));
-        results.forEach(itemResult -> {
-            try {
-                String folder = itemResult.get().objectName();
-
-                if (folder.endsWith("/") && !folder.equals(MinioUtil.getUserFolder(idUser))) {
-                    folderList.add(folder.split("/")[1]);
-                }
-            } catch (Exception e) {
-                throw new InternalServerException();
-            }
-        });
-        return folderList;
+        return getAll(idUser, false);
     }
 
 
@@ -113,9 +99,9 @@ public class FolderService {
                                     .build())
                             .build());
                 } else {
-                    String old = oldObjectName.substring(MinioUtil.getUserFolder(idUser).length());
-                    String newO = newObjectName.substring(MinioUtil.getUserFolder(idUser).length());
-                    rename(idUser, old, newO);
+                    String oldObjectPath = oldObjectName.substring(MinioUtil.getUserFolder(idUser).length());
+                    String newObjectPath = newObjectName.substring(MinioUtil.getUserFolder(idUser).length());
+                    rename(idUser, oldObjectPath, newObjectPath);
                 }
             } catch (Exception e) {
                 throw new FolderException("Folder renaming error, try again");
@@ -161,6 +147,4 @@ public class FolderService {
         zipOutputStream.write(object.getByteArray(), 0, object.getByteArray().length);
         zipOutputStream.closeEntry();
     }
-
-
 }
