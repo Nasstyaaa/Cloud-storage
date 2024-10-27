@@ -96,6 +96,37 @@ public class FolderService {
         });
     }
 
+    public void rename(int idUser, String sourceName, String newName) {
+        Iterable<Result<Item>> results = MinioUtil.getAllFolderObjects(minioClient, bucket,
+                MinioUtil.getUserFolder(idUser) + sourceName);
+
+        results.forEach(itemResult -> {
+            try {
+                String oldObjectName = itemResult.get().objectName();
+                String newObjectName = oldObjectName.replaceFirst(MinioUtil.getUserFolder(idUser) + sourceName,
+                        MinioUtil.getUserFolder(idUser) + newName);
+
+                if (!oldObjectName.endsWith("/")) {
+                    minioClient.copyObject(CopyObjectArgs.builder()
+                            .bucket(bucket)
+                            .object(newObjectName)
+                            .source(CopySource.builder()
+                                    .bucket(bucket)
+                                    .object(oldObjectName)
+                                    .build())
+                            .build());
+                } else {
+                    String old = oldObjectName.substring(MinioUtil.getUserFolder(idUser).length());
+                    String newO = newObjectName.substring(MinioUtil.getUserFolder(idUser).length());
+                    rename(idUser, old, newO);
+                }
+            } catch (Exception e) {
+
+            }
+        });
+        remove(idUser, sourceName);
+    }
+
 
     public ByteArrayResource download(int idUser, String folder) {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
