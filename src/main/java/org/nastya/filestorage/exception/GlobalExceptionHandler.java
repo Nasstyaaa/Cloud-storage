@@ -14,7 +14,7 @@ public class GlobalExceptionHandler{
         return "redirect:/registration";
     }
 
-    @ExceptionHandler({FileUploadException.class, FileDownloadException.class, FolderUploadException.class})
+    @ExceptionHandler({FolderException.class, FileException.class})
     public String handleFileUploadException(RuntimeException e,
                                             RedirectAttributes redirectAttributes){
         redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());

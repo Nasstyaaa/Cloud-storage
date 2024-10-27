@@ -2,10 +2,7 @@ package org.nastya.filestorage.service;
 
 import io.minio.*;
 import io.minio.messages.Item;
-import org.nastya.filestorage.exception.FolderDeleteException;
-import org.nastya.filestorage.exception.FolderDownloadException;
-import org.nastya.filestorage.exception.FolderUploadException;
-import org.nastya.filestorage.exception.InternalServerException;
+import org.nastya.filestorage.exception.*;
 import org.nastya.filestorage.util.MinioUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -68,7 +65,7 @@ public class FolderService {
                     try {
                         newFiles.add((MultipartFile) itemResult.get());
                     } catch (Exception e) {
-                        throw new FolderUploadException();
+                        throw new FolderException("Error uploading the folder, try again");
                     }
                 });
                 upload(idUser, newFiles.toArray(new MultipartFile[0]));
@@ -91,7 +88,7 @@ public class FolderService {
                     fileService.remove(idUser, objectWithoutUserPrefix);
                 }
             } catch (Exception e) {
-                throw new FolderDeleteException();
+                throw new FolderException("Folder deletion error, try again");
             }
         });
     }
@@ -121,7 +118,7 @@ public class FolderService {
                     rename(idUser, old, newO);
                 }
             } catch (Exception e) {
-
+                throw new FolderException("Folder renaming error, try again");
             }
         });
         remove(idUser, sourceName);
@@ -134,11 +131,12 @@ public class FolderService {
         try (ZipOutputStream zipOutputStream = new ZipOutputStream(byteArrayOutputStream)) {
             addItemsToZip(MinioUtil.getUserFolder(idUser) + folder, zipOutputStream, idUser);
         } catch (Exception e) {
-            throw new FolderDownloadException();
+            throw new FolderException("Error downloading the folder, try again");
         }
 
         return new ByteArrayResource(byteArrayOutputStream.toByteArray());
     }
+
 
     private void addItemsToZip(String path, ZipOutputStream zipOutputStream, int idUser) throws Exception {
         Iterable<Result<Item>> results = MinioUtil.getAllFolderObjects(minioClient, bucket, path);

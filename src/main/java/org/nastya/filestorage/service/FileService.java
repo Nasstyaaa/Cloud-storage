@@ -54,7 +54,7 @@ public class FileService {
                             .stream(file.getInputStream(), file.getSize(), -1)
                             .build());
         } catch (Exception e) {
-            throw new FileUploadException();
+            throw new FileException("Error uploading the file, try again");
         }
     }
 
@@ -67,7 +67,7 @@ public class FileService {
                             .build());
             return new ByteArrayResource(object.readAllBytes());
         } catch (Exception e) {
-            throw new FileDownloadException();
+            throw new FileException("Error downloading the file, try again");
         }
     }
 
@@ -81,7 +81,7 @@ public class FileService {
                             .build()
             );
         } catch (Exception e) {
-            throw new FileDeleteException();
+            throw new FileException("File deletion error, try again");
         }
     }
 
@@ -100,7 +100,7 @@ public class FileService {
             remove(idUser, sourceName);
 
         } catch (Exception e) {
-
+            throw new FileException("File renaming error, try again");
         }
     }
 
