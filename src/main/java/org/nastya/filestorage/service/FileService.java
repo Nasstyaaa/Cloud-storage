@@ -1,7 +1,6 @@
 package org.nastya.filestorage.service;
 
 import io.minio.*;
-import io.minio.messages.Item;
 import org.nastya.filestorage.exception.*;
 import org.nastya.filestorage.util.MinioUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +9,6 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -36,7 +34,7 @@ public class FileService extends ObjectService {
             minioClient.putObject(
                     PutObjectArgs.builder()
                             .bucket(bucket)
-                            .object(MinioUtil.getUserFolder(idUser) + file.getOriginalFilename())
+                            .object(MinioUtil.getFullPathObject(idUser, file.getOriginalFilename()))
                             .stream(file.getInputStream(), file.getSize(), -1)
                             .build());
         } catch (Exception e) {
@@ -49,7 +47,7 @@ public class FileService extends ObjectService {
             GetObjectResponse object = minioClient.getObject(
                     GetObjectArgs.builder()
                             .bucket(bucket)
-                            .object(MinioUtil.getUserFolder(idUser) + file)
+                            .object(MinioUtil.getFullPathObject(idUser, file))
                             .build());
             return new ByteArrayResource(object.readAllBytes());
         } catch (Exception e) {
@@ -63,7 +61,7 @@ public class FileService extends ObjectService {
             minioClient.removeObject(
                     RemoveObjectArgs.builder()
                             .bucket(bucket)
-                            .object(MinioUtil.getUserFolder(idUser) + file)
+                            .object(MinioUtil.getFullPathObject(idUser, file))
                             .build()
             );
         } catch (Exception e) {
@@ -74,17 +72,19 @@ public class FileService extends ObjectService {
 
     public void rename(int idUser, String sourceName, String newName) {
         try {
+            String newPath = MinioUtil.getFullPathObject(idUser, newName + getFileExtension(sourceName)); //в папках не должно добавляться
+            String sourcePath = MinioUtil.getFullPathObject(idUser, sourceName);
+
             minioClient.copyObject(CopyObjectArgs.builder()
                     .bucket(bucket)
-                    .object(MinioUtil.getUserFolder(idUser) + newName + getFileExtension(sourceName))
+                    .object(newPath)
                     .source(CopySource.builder()
                             .bucket(bucket)
-                            .object(MinioUtil.getUserFolder(idUser) + sourceName)
+                            .object(sourcePath)
                             .build())
                     .build());
 
             remove(idUser, sourceName);
-
         } catch (Exception e) {
             throw new FileException("File renaming error, try again");
         }

@@ -61,7 +61,7 @@ public class FolderController {
 
     @PostMapping("/rename")
     public String renameFolder(@RequestParam("folderName") String sourceFolder, @RequestParam("newFolder") String newFolder,
-                             @AuthenticationPrincipal CustomUserDetails userDetails) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+                             @AuthenticationPrincipal CustomUserDetails userDetails) {
         folderService.rename(userDetails.getId(), sourceFolder + "/", newFolder + "/");
 
         return "redirect:/home";
