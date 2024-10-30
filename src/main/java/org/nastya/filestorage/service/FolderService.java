@@ -33,6 +33,7 @@ public class FolderService extends ObjectService {
 
     public void upload(UploadFolderRequestDTO requestDTO) {
         for (MultipartFile file : requestDTO.getFolder()) {
+            fileService.upload(new UploadFileRequestDTO(file, requestDTO.getPath()));
         }
     }
 

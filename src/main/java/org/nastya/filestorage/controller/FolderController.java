@@ -5,6 +5,7 @@ import io.minio.errors.*;
 import org.nastya.filestorage.DTO.folder.UploadFolderRequestDTO;
 import org.nastya.filestorage.security.CustomUserDetails;
 import org.nastya.filestorage.service.FolderService;
+import org.nastya.filestorage.util.MinioUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.MediaType;
@@ -33,8 +34,9 @@ public class FolderController {
     @PostMapping("/upload")
     public String uploadFolder(@ModelAttribute("folder") UploadFolderRequestDTO requestDTO,
                                @AuthenticationPrincipal CustomUserDetails userDetails) {
+        String fullPath = MinioUtil.getUserPrefix(userDetails.getId()) + requestDTO.getPath();
+        requestDTO.setPath(fullPath);
         folderService.upload(requestDTO);
-
         return "redirect:/home";
     }
 
