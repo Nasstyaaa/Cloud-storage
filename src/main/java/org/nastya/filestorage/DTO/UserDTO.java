@@ -3,8 +3,10 @@ package org.nastya.filestorage.DTO;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 @AllArgsConstructor
 public class UserDTO {
     @Size(min=2, max = 25, message = "Invalid name length")

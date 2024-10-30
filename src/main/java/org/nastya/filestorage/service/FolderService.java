@@ -2,10 +2,11 @@ package org.nastya.filestorage.service;
 
 import io.minio.*;
 import io.minio.messages.Item;
+import org.nastya.filestorage.DTO.file.UploadFileRequestDTO;
+import org.nastya.filestorage.DTO.folder.UploadFolderRequestDTO;
 import org.nastya.filestorage.exception.*;
 import org.nastya.filestorage.util.MinioUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,18 +18,12 @@ import java.util.zip.ZipOutputStream;
 
 @Service
 public class FolderService extends ObjectService {
-
-    @Value("${minio.bucket}")
-    private String bucket;
-
     private final FileService fileService;
-    private final MinioClient minioClient;
 
     @Autowired
     public FolderService(FileService fileService, MinioClient minioClient) {
         super(minioClient);
         this.fileService = fileService;
-        this.minioClient = minioClient;
     }
 
     public List<String> getAll(int idUser) {
@@ -36,9 +31,8 @@ public class FolderService extends ObjectService {
     }
 
 
-    public void upload(int idUser, MultipartFile[] files) {
-        for (MultipartFile file : files) {
-            fileService.upload(idUser, file);
+    public void upload(UploadFolderRequestDTO requestDTO) {
+        for (MultipartFile file : requestDTO.getFolder()) {
         }
     }
 

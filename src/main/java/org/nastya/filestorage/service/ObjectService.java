@@ -23,16 +23,16 @@ import java.util.List;
 public abstract class ObjectService {
 
     @Value("${minio.bucket}")
-    private String bucket;
+    protected String bucket;
 
-    private final MinioClient minioClient;
+    protected final MinioClient minioClient;
 
     @Autowired
     public ObjectService(MinioClient minioClient) {
         this.minioClient = minioClient;
     }
 
-    public List<String> getAll(int idUser, boolean isFile) {
+    protected List<String> getAll(int idUser, boolean isFile) {
         List<String> objectList = new ArrayList<>();
 
         Iterable<Result<Item>> results = MinioUtil.getFolderObjects(minioClient, bucket,

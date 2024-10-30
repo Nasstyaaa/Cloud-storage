@@ -11,6 +11,10 @@ public class MinioUtil {
         return ("user-" + idUser + "-files/") + object;
     }
 
+    public static String getUserPrefix(int idUser) {
+        return "user-" + idUser + "-files/";
+    }
+
     public static String getObjectWithoutUserPrefix(int idUser, String object) {
         return object.substring(MinioUtil.getFullPathObject(idUser, "").length());
     }

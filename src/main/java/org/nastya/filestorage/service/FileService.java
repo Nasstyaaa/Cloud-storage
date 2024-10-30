@@ -1,10 +1,10 @@
 package org.nastya.filestorage.service;
 
 import io.minio.*;
+import org.nastya.filestorage.DTO.file.UploadFileRequestDTO;
 import org.nastya.filestorage.exception.*;
 import org.nastya.filestorage.util.MinioUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,27 +14,22 @@ import java.util.List;
 @Service
 public class FileService extends ObjectService {
 
-    @Value("${minio.bucket}")
-    private String bucket;
-
-    private final MinioClient minioClient;
-
     @Autowired
     public FileService(MinioClient minioClient) {
         super(minioClient);
-        this.minioClient = minioClient;
     }
 
     public List<String> getAll(int idUser) {
         return getAll(idUser, true);
     }
 
-    public void upload(int idUser, MultipartFile file) {
+    public void upload(UploadFileRequestDTO requestDTO) {
+        MultipartFile file = requestDTO.getFile();
         try {
             minioClient.putObject(
                     PutObjectArgs.builder()
                             .bucket(bucket)
-                            .object(MinioUtil.getFullPathObject(idUser, file.getOriginalFilename()))
+                            .object(requestDTO.getPath() + file.getOriginalFilename())
                             .stream(file.getInputStream(), file.getSize(), -1)
                             .build());
         } catch (Exception e) {
@@ -72,7 +67,7 @@ public class FileService extends ObjectService {
 
     public void rename(int idUser, String sourceName, String newName) {
         try {
-            String newPath = MinioUtil.getFullPathObject(idUser, newName + getFileExtension(sourceName)); //в папках не должно добавляться
+            String newPath = MinioUtil.getFullPathObject(idUser, newName + getFileExtension(sourceName)); //TODO в папках не должно добавляться
             String sourcePath = MinioUtil.getFullPathObject(idUser, sourceName);
 
             minioClient.copyObject(CopyObjectArgs.builder()

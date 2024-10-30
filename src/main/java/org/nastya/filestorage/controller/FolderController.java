@@ -2,6 +2,7 @@ package org.nastya.filestorage.controller;
 
 import com.google.common.net.HttpHeaders;
 import io.minio.errors.*;
+import org.nastya.filestorage.DTO.folder.UploadFolderRequestDTO;
 import org.nastya.filestorage.security.CustomUserDetails;
 import org.nastya.filestorage.service.FolderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,10 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -33,9 +31,9 @@ public class FolderController {
     }
 
     @PostMapping("/upload")
-    public String uploadFolder(@RequestParam("folder") MultipartFile[] files,
+    public String uploadFolder(@ModelAttribute("folder") UploadFolderRequestDTO requestDTO,
                                @AuthenticationPrincipal CustomUserDetails userDetails) {
-        folderService.upload(userDetails.getId(), files);
+        folderService.upload(requestDTO);
 
         return "redirect:/home";
     }

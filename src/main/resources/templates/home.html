@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -196,10 +196,12 @@
             <input type="file" id="file" name="file" multiple/>
         </div>
 
-        <form id="upload-form" th:action="@{/file/upload}" method="post" enctype="multipart/form-data">
-            <input type="file" id="hidden-file-input" name="file" multiple style="display:none;">
-            <button type="submit" class="btn btn-primary">Submit Files</button>
+        <form id="upload-form" th:action="@{/file/upload}" method="post" th:object="${files}" enctype="multipart/form-data">
+            <input type="file" id="hidden-file-input" name="file" multiple required style="display:none;">
+            <input type="hidden" name="path" value="/">
+            <button type="submit" class="btn btn-primary">Submit File</button>
         </form>
+
 
         <div class="file-list">
             <h5>Uploaded Files:</h5>
@@ -242,7 +244,7 @@
 
         <form id="folder-upload-form" th:action="@{/folder/upload}" method="post" enctype="multipart/form-data">
             <input type="file" id="hidden-folder-input" name="folder" webkitdirectory directory style="display:none;">
-            <button type="submit" class="btn btn-primary">Submit Folders</button>
+            <button type="submit" class="btn btn-primary">Submit Folder</button>
         </form>
 
         <div class="folder-list">
