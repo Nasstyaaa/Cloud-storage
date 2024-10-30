@@ -68,28 +68,28 @@ public class FolderService extends ObjectService {
         });
     }
 
-    public ByteArrayResource download(int idUser, String folder) {
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        Iterable<Result<Item>> results = MinioUtil.getAllFolderObjects(minioClient, bucket,
-                MinioUtil.getFullPathObject(idUser, folder));
-
-        try (ZipOutputStream zipOutputStream = new ZipOutputStream(byteArrayOutputStream)) {
-            for (Result<Item> itemResult : results) {
-                String objectName = MinioUtil.getObjectWithoutUserPrefix(idUser, itemResult.get().objectName());
-                addFileToZip(objectName, zipOutputStream, idUser);
-            }
-        } catch (Exception e) {
-            throw new FolderException("Error downloading the folder, try again");
-        }
-
-        return new ByteArrayResource(byteArrayOutputStream.toByteArray());
-    }
-
-    private void addFileToZip(String fileName, ZipOutputStream zipOutputStream, int idUser) throws Exception {
-        ByteArrayResource object = fileService.download(idUser, fileName);
-        zipOutputStream.putNextEntry(new ZipEntry(fileName));
-        zipOutputStream.write(object.getByteArray(), 0, object.getByteArray().length);
-        zipOutputStream.closeEntry();
-    }
+//    public ByteArrayResource download(int idUser, String folder) {
+//        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+//        Iterable<Result<Item>> results = MinioUtil.getAllFolderObjects(minioClient, bucket,
+//                MinioUtil.getFullPathObject(idUser, folder));
+//
+//        try (ZipOutputStream zipOutputStream = new ZipOutputStream(byteArrayOutputStream)) {
+//            for (Result<Item> itemResult : results) {
+//                String objectName = MinioUtil.getObjectWithoutUserPrefix(idUser, itemResult.get().objectName());
+//                addFileToZip(objectName, zipOutputStream, idUser);
+//            }
+//        } catch (Exception e) {
+//            throw new FolderException("Error downloading the folder, try again");
+//        }
+//
+//        return new ByteArrayResource(byteArrayOutputStream.toByteArray());
+//    }
+//
+//    private void addFileToZip(String fileName, ZipOutputStream zipOutputStream, int idUser) throws Exception {
+//        ByteArrayResource object = fileService.download(idUser, fileName);
+//        zipOutputStream.putNextEntry(new ZipEntry(fileName));
+//        zipOutputStream.write(object.getByteArray(), 0, object.getByteArray().length);
+//        zipOutputStream.closeEntry();
+//    }
 
 }

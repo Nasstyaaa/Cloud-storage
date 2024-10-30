@@ -2,6 +2,7 @@ package org.nastya.filestorage.controller;
 
 import com.google.common.net.HttpHeaders;
 import jakarta.validation.Valid;
+import org.nastya.filestorage.DTO.file.DownloadFileRequestDTO;
 import org.nastya.filestorage.DTO.file.UploadFileRequestDTO;
 import org.nastya.filestorage.security.CustomUserDetails;
 import org.nastya.filestorage.service.FileService;
@@ -39,12 +40,15 @@ public class FileController {
     }
 
     @GetMapping("/download")
-    public ResponseEntity<ByteArrayResource> downloadFile(@RequestParam("file") String file,
+    public ResponseEntity<ByteArrayResource> downloadFile(@ModelAttribute("files") DownloadFileRequestDTO requestDTO,
                                                           @AuthenticationPrincipal CustomUserDetails userDetails){
-        ByteArrayResource fileData = fileService.download(userDetails.getId(), file);
+        String fullPath = MinioUtil.getUserPrefix(userDetails.getId()) + requestDTO.getPath();
+        requestDTO.setPath(fullPath);
+
+        ByteArrayResource fileData = fileService.download(requestDTO);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\""
-                        + URLEncoder.encode(file, StandardCharsets.UTF_8) + "\"")
+                        + URLEncoder.encode(requestDTO.getNameFile(), StandardCharsets.UTF_8) + "\"")
                 .body(fileData);
 
     }

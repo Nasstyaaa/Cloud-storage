@@ -40,16 +40,16 @@ public class FolderController {
         return "redirect:/home";
     }
 
-    @GetMapping("/download")
-    public ResponseEntity<ByteArrayResource> downloadFolder(@RequestParam("folder") String folder,
-                                                            @AuthenticationPrincipal CustomUserDetails userDetails) {
-        ByteArrayResource fileData = folderService.download(userDetails.getId(), folder + "/"); //TODO поправить фронт
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\""
-                        + URLEncoder.encode(folder, StandardCharsets.UTF_8) + ".zip\"")
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .body(fileData);
-    }
+//    @GetMapping("/download")
+//    public ResponseEntity<ByteArrayResource> downloadFolder(@RequestParam("folder") String folder,
+//                                                            @AuthenticationPrincipal CustomUserDetails userDetails) {
+//        ByteArrayResource fileData = folderService.download(userDetails.getId(), folder + "/"); //TODO поправить фронт
+//        return ResponseEntity.ok()
+//                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\""
+//                        + URLEncoder.encode(folder, StandardCharsets.UTF_8) + ".zip\"")
+//                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+//                .body(fileData);
+//    }
 
     @PostMapping("/remove")
     public String removeFolder(@RequestParam("folder") String folder,

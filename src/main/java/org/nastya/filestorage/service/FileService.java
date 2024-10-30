@@ -1,6 +1,7 @@
 package org.nastya.filestorage.service;
 
 import io.minio.*;
+import org.nastya.filestorage.DTO.file.DownloadFileRequestDTO;
 import org.nastya.filestorage.DTO.file.UploadFileRequestDTO;
 import org.nastya.filestorage.exception.*;
 import org.nastya.filestorage.util.MinioUtil;
@@ -37,12 +38,12 @@ public class FileService extends ObjectService {
         }
     }
 
-    public ByteArrayResource download(int idUser, String file) {
+    public ByteArrayResource download(DownloadFileRequestDTO requestDTO) {
         try {
             GetObjectResponse object = minioClient.getObject(
                     GetObjectArgs.builder()
                             .bucket(bucket)
-                            .object(MinioUtil.getFullPathObject(idUser, file))
+                            .object(requestDTO.getPath() + requestDTO.getNameFile())
                             .build());
             return new ByteArrayResource(object.readAllBytes());
         } catch (Exception e) {

@@ -198,7 +198,7 @@
 
         <form id="upload-form" th:action="@{/file/upload}" method="post" th:object="${files}" enctype="multipart/form-data">
             <input type="file" id="hidden-file-input" name="file" multiple required style="display:none;">
-            <input type="hidden" name="path" value="/">
+            <input type="hidden" name="path" value="">
             <button type="submit" class="btn btn-primary">Submit File</button>
         </form>
 
@@ -209,10 +209,15 @@
                 <li th:each="file : ${files}">
                     <span class="fa fa-file"></span>
                     <span class="file-name" th:text="${file}"></span>
-                    <a th:href="@{/file/download(file=${file})}" class="btn btn-sm btn-outline-light ml-3"
-                       title="Download">
-                        <span class="fa fa-download"></span>
-                    </a>
+
+                    <form th:action="@{/file/download}" method="get" class="d-inline" th:object="${files}">
+                        <input type="hidden" name="nameFile" th:value="${file}" />
+                        <input type="hidden" name="path" value="/" />
+                        <button type="submit" class="btn btn-sm btn-outline-light ml-3" title="Download">
+                            <span class="fa fa-download"></span>
+                        </button>
+                    </form>
+
 
                     <form th:action="@{file/remove}" method="post" style="display:inline;">
                         <input type="hidden" name="file" th:value="${file}"/>
