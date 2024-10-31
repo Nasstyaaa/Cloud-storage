@@ -4,9 +4,11 @@ import io.minio.*;
 import io.minio.messages.Item;
 import org.nastya.filestorage.DTO.file.DownloadFileRequestDTO;
 import org.nastya.filestorage.DTO.file.RemoveFileRequestDTO;
+import org.nastya.filestorage.DTO.file.RenameFileRequestDTO;
 import org.nastya.filestorage.DTO.file.UploadFileRequestDTO;
 import org.nastya.filestorage.DTO.folder.DownloadFolderRequestDTO;
 import org.nastya.filestorage.DTO.folder.RemoveFolderRequestDTO;
+import org.nastya.filestorage.DTO.folder.RenameFolderRequestDTO;
 import org.nastya.filestorage.DTO.folder.UploadFolderRequestDTO;
 import org.nastya.filestorage.exception.*;
 import org.nastya.filestorage.util.MinioUtil;
@@ -56,21 +58,21 @@ public class FolderService extends ObjectService {
     }
 
 
-//    public void rename(int idUser, String sourceName, String newName) {
-//        Iterable<Result<Item>> results = MinioUtil.getAllFolderObjects(minioClient, bucket,
-//                MinioUtil.getFullPathObject(idUser, sourceName));
-//
-//        results.forEach(itemResult -> {
-//            try {
-//                String oldObjectName = MinioUtil.getObjectWithoutUserPrefix(idUser, itemResult.get().objectName());
-//                int firstSlashIndex = oldObjectName.indexOf('/');
-//                String newObjectName = newName + oldObjectName.substring(firstSlashIndex + 1);
-//                fileService.rename(idUser, oldObjectName, newObjectName);
-//            } catch (Exception e) {
-//                throw new FolderException("Folder renaming error, try again");
-//            }
-//        });
-//    }
+    public void rename(RenameFolderRequestDTO requestDTO) {
+        Iterable<Result<Item>> results = MinioUtil.getAllFolderObjects(minioClient, bucket,
+                requestDTO.getPath() + requestDTO.getNameFolder());
+
+        results.forEach(itemResult -> {
+            try {
+                String oldObjectName = MinioUtil.getObjectWithoutPrefix(itemResult.get().objectName(), requestDTO.getPath());
+                int firstSlashIndex = oldObjectName.indexOf('/'); //TODO не очень
+                String newObjectName = requestDTO.getNewName() + oldObjectName.substring(firstSlashIndex + 1);
+                fileService.rename(new RenameFileRequestDTO(oldObjectName, newObjectName, requestDTO.getPath()));
+            } catch (Exception e) {
+                throw new FolderException("Folder renaming error, try again");
+            }
+        });
+    }
 
     public ByteArrayResource download(DownloadFolderRequestDTO requestDTO) {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();

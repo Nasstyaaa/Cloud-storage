@@ -5,7 +5,11 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class RemoveFolderRequestDTO {
+public class RemoveFolderRequestDTO extends FolderRequestDTO{
     private String nameFolder;
-    private String path;
+
+    public RemoveFolderRequestDTO(String nameFolder, String path) {
+        super(path);
+        this.nameFolder = nameFolder;
+    }
 }

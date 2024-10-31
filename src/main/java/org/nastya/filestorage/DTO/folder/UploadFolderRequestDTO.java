@@ -1,14 +1,17 @@
 package org.nastya.filestorage.DTO.folder;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @Setter
-@AllArgsConstructor
-public class UploadFolderRequestDTO {
+public class UploadFolderRequestDTO extends FolderRequestDTO {
     private MultipartFile[] folder;
     private String path;
+
+    public UploadFolderRequestDTO(MultipartFile[] folder, String path) {
+        super(path);
+        this.folder = folder;
+    }
 }
