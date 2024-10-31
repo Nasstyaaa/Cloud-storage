@@ -1,7 +1,7 @@
 package org.nastya.filestorage.controller;
 
 import com.google.common.net.HttpHeaders;
-import io.minio.errors.*;
+import org.nastya.filestorage.DTO.folder.DownloadFolderRequestDTO;
 import org.nastya.filestorage.DTO.folder.UploadFolderRequestDTO;
 import org.nastya.filestorage.security.CustomUserDetails;
 import org.nastya.filestorage.service.FolderService;
@@ -13,13 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 
 @Controller
 @RequestMapping("/folder")
@@ -40,30 +36,35 @@ public class FolderController {
         return "redirect:/home";
     }
 
-//    @GetMapping("/download")
-//    public ResponseEntity<ByteArrayResource> downloadFolder(@RequestParam("folder") String folder,
-//                                                            @AuthenticationPrincipal CustomUserDetails userDetails) {
-//        ByteArrayResource fileData = folderService.download(userDetails.getId(), folder + "/"); //TODO поправить фронт
-//        return ResponseEntity.ok()
-//                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\""
-//                        + URLEncoder.encode(folder, StandardCharsets.UTF_8) + ".zip\"")
-//                .contentType(MediaType.APPLICATION_OCTET_STREAM)
-//                .body(fileData);
+    @GetMapping("/download")
+    public ResponseEntity<ByteArrayResource> downloadFolder(@ModelAttribute("folderDownload") DownloadFolderRequestDTO requestDTO,
+                                                            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        String fullPath = MinioUtil.getUserPrefix(userDetails.getId()) + requestDTO.getPath();
+        String fullName = MinioUtil.addSeparator(requestDTO.getNameFolder());
+        requestDTO.setPath(fullPath);
+        requestDTO.setNameFolder(fullName);
+
+        ByteArrayResource fileData = folderService.download(requestDTO);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\""
+                        + URLEncoder.encode(requestDTO.getNameFolder(), StandardCharsets.UTF_8) + ".zip\"")
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(fileData);
+    }
+
+//    @PostMapping("/remove")
+//    public String removeFolder(@RequestParam("folder") String folder,
+//                               @AuthenticationPrincipal CustomUserDetails userDetails) {
+//        folderService.remove(userDetails.getId(), folder + "/");
+//
+//        return "redirect:/home";
 //    }
-
-    @PostMapping("/remove")
-    public String removeFolder(@RequestParam("folder") String folder,
-                               @AuthenticationPrincipal CustomUserDetails userDetails) {
-        folderService.remove(userDetails.getId(), folder + "/");
-
-        return "redirect:/home";
-    }
-
-    @PostMapping("/rename")
-    public String renameFolder(@RequestParam("folderName") String sourceFolder, @RequestParam("newFolder") String newFolder,
-                             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        folderService.rename(userDetails.getId(), sourceFolder + "/", newFolder + "/");
-
-        return "redirect:/home";
-    }
+//
+//    @PostMapping("/rename")
+//    public String renameFolder(@RequestParam("folderName") String sourceFolder, @RequestParam("newFolder") String newFolder,
+//                             @AuthenticationPrincipal CustomUserDetails userDetails) {
+//        folderService.rename(userDetails.getId(), sourceFolder + "/", newFolder + "/");
+//
+//        return "redirect:/home";
+//    }
 }

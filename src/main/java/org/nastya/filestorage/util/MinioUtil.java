@@ -15,8 +15,12 @@ public class MinioUtil {
         return "user-" + idUser + "-files/";
     }
 
-    public static String getObjectWithoutUserPrefix(int idUser, String object) {
-        return object.substring(MinioUtil.getFullPathObject(idUser, "").length());
+    public static String getObjectWithoutPrefix(String object, String prefix) {
+        return object.substring(prefix.length());
+    }
+
+    public static String addSeparator(String object){
+        return object + "/";
     }
 
     public static Iterable<Result<Item>> getFolderObjects(MinioClient minioClient, String bucket, String prefix) {

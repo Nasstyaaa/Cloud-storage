@@ -2,7 +2,9 @@ package org.nastya.filestorage.service;
 
 import io.minio.*;
 import io.minio.messages.Item;
+import org.nastya.filestorage.DTO.file.DownloadFileRequestDTO;
 import org.nastya.filestorage.DTO.file.UploadFileRequestDTO;
+import org.nastya.filestorage.DTO.folder.DownloadFolderRequestDTO;
 import org.nastya.filestorage.DTO.folder.UploadFolderRequestDTO;
 import org.nastya.filestorage.exception.*;
 import org.nastya.filestorage.util.MinioUtil;
@@ -38,58 +40,58 @@ public class FolderService extends ObjectService {
     }
 
 
-    public void remove(int idUser, String folder) {
-        Iterable<Result<Item>> results = MinioUtil.getAllFolderObjects(minioClient, bucket,
-                MinioUtil.getFullPathObject(idUser, folder));
-        results.forEach(itemResult -> {
-            try {
-                String objectName = MinioUtil.getObjectWithoutUserPrefix(idUser, itemResult.get().objectName());
-                fileService.remove(idUser, objectName);
-            } catch (Exception e) {
-                throw new FolderException("Folder deletion error, try again");
-            }
-        });
-    }
-
-
-    public void rename(int idUser, String sourceName, String newName) {
-        Iterable<Result<Item>> results = MinioUtil.getAllFolderObjects(minioClient, bucket,
-                MinioUtil.getFullPathObject(idUser, sourceName));
-
-        results.forEach(itemResult -> {
-            try {
-                String oldObjectName = MinioUtil.getObjectWithoutUserPrefix(idUser, itemResult.get().objectName());
-                int firstSlashIndex = oldObjectName.indexOf('/');
-                String newObjectName = newName + oldObjectName.substring(firstSlashIndex + 1);
-                fileService.rename(idUser, oldObjectName, newObjectName);
-            } catch (Exception e) {
-                throw new FolderException("Folder renaming error, try again");
-            }
-        });
-    }
-
-//    public ByteArrayResource download(int idUser, String folder) {
-//        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+//    public void remove(int idUser, String folder) {
 //        Iterable<Result<Item>> results = MinioUtil.getAllFolderObjects(minioClient, bucket,
 //                MinioUtil.getFullPathObject(idUser, folder));
-//
-//        try (ZipOutputStream zipOutputStream = new ZipOutputStream(byteArrayOutputStream)) {
-//            for (Result<Item> itemResult : results) {
+//        results.forEach(itemResult -> {
+//            try {
 //                String objectName = MinioUtil.getObjectWithoutUserPrefix(idUser, itemResult.get().objectName());
-//                addFileToZip(objectName, zipOutputStream, idUser);
+//                fileService.remove(idUser, objectName);
+//            } catch (Exception e) {
+//                throw new FolderException("Folder deletion error, try again");
 //            }
-//        } catch (Exception e) {
-//            throw new FolderException("Error downloading the folder, try again");
-//        }
-//
-//        return new ByteArrayResource(byteArrayOutputStream.toByteArray());
+//        });
 //    }
 //
-//    private void addFileToZip(String fileName, ZipOutputStream zipOutputStream, int idUser) throws Exception {
-//        ByteArrayResource object = fileService.download(idUser, fileName);
-//        zipOutputStream.putNextEntry(new ZipEntry(fileName));
-//        zipOutputStream.write(object.getByteArray(), 0, object.getByteArray().length);
-//        zipOutputStream.closeEntry();
+//
+//    public void rename(int idUser, String sourceName, String newName) {
+//        Iterable<Result<Item>> results = MinioUtil.getAllFolderObjects(minioClient, bucket,
+//                MinioUtil.getFullPathObject(idUser, sourceName));
+//
+//        results.forEach(itemResult -> {
+//            try {
+//                String oldObjectName = MinioUtil.getObjectWithoutUserPrefix(idUser, itemResult.get().objectName());
+//                int firstSlashIndex = oldObjectName.indexOf('/');
+//                String newObjectName = newName + oldObjectName.substring(firstSlashIndex + 1);
+//                fileService.rename(idUser, oldObjectName, newObjectName);
+//            } catch (Exception e) {
+//                throw new FolderException("Folder renaming error, try again");
+//            }
+//        });
 //    }
+
+    public ByteArrayResource download(DownloadFolderRequestDTO requestDTO) {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        Iterable<Result<Item>> results = MinioUtil.getAllFolderObjects(minioClient, bucket,
+               requestDTO.getPath() + requestDTO.getNameFolder());
+
+        try (ZipOutputStream zipOutputStream = new ZipOutputStream(byteArrayOutputStream)) {
+            for (Result<Item> itemResult : results) {
+                String objectName = MinioUtil.getObjectWithoutPrefix(itemResult.get().objectName(), requestDTO.getPath());
+                addFileToZip(zipOutputStream, new DownloadFileRequestDTO(objectName, requestDTO.getPath()));
+            }
+        } catch (Exception e) {
+            throw new FolderException("Error downloading the folder, try again");
+        }
+
+        return new ByteArrayResource(byteArrayOutputStream.toByteArray());
+    }
+
+    private void addFileToZip(ZipOutputStream zipOutputStream, DownloadFileRequestDTO requestDTO) throws Exception {
+        ByteArrayResource object = fileService.download(requestDTO);
+        zipOutputStream.putNextEntry(new ZipEntry(requestDTO.getNameFile()));
+        zipOutputStream.write(object.getByteArray(), 0, object.getByteArray().length);
+        zipOutputStream.closeEntry();
+    }
 
 }
