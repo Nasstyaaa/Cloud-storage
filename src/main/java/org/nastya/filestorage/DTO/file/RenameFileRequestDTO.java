@@ -5,12 +5,13 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class RemoveFileRequestDTO extends FileRequestDTO {
+public class RenameFileRequestDTO extends FileRequestDTO{
     private String nameFile;
+    private String newName;
 
-    public RemoveFileRequestDTO(String nameFile, String path) {
+    public RenameFileRequestDTO(String nameFile, String newName, String path) {
         super(path);
         this.nameFile = nameFile;
+        this.newName = newName;
     }
 }
-

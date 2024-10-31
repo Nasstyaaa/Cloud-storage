@@ -1,13 +1,15 @@
 package org.nastya.filestorage.DTO.file;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
-public class DownloadFileRequestDTO {
+public class DownloadFileRequestDTO extends FileRequestDTO{
     private String nameFile;
-    private String path;
+
+    public DownloadFileRequestDTO(String nameFile, String path) {
+        super(path);
+        this.nameFile = nameFile;
+    }
 }

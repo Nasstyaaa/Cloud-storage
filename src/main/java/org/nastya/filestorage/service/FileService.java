@@ -3,6 +3,7 @@ package org.nastya.filestorage.service;
 import io.minio.*;
 import org.nastya.filestorage.DTO.file.DownloadFileRequestDTO;
 import org.nastya.filestorage.DTO.file.RemoveFileRequestDTO;
+import org.nastya.filestorage.DTO.file.RenameFileRequestDTO;
 import org.nastya.filestorage.DTO.file.UploadFileRequestDTO;
 import org.nastya.filestorage.exception.*;
 import org.nastya.filestorage.util.MinioUtil;
@@ -67,29 +68,35 @@ public class FileService extends ObjectService {
     }
 
 
-//    public void rename(int idUser, String sourceName, String newName) {
-//        try {
-//            String newPath = MinioUtil.getFullPathObject(idUser, newName + getFileExtension(sourceName)); //TODO в папках не должно добавляться
-//            String sourcePath = MinioUtil.getFullPathObject(idUser, sourceName);
-//
-//            minioClient.copyObject(CopyObjectArgs.builder()
-//                    .bucket(bucket)
-//                    .object(newPath)
-//                    .source(CopySource.builder()
-//                            .bucket(bucket)
-//                            .object(sourcePath)
-//                            .build())
-//                    .build());
-//
-//            remove(idUser, sourceName);
-//        } catch (Exception e) {
-//            throw new FileException("File renaming error, try again");
-//        }
-//    }
+    public void rename(RenameFileRequestDTO requestDTO) {
+        try {
+            String newPath = requestDTO.getPath() + addFileExtension(requestDTO.getNameFile(), requestDTO.getNewName());
+            String sourcePath = requestDTO.getPath() + requestDTO.getNameFile();
 
-    private String getFileExtension(String fileName) {
-        int lastDotIndex = fileName.lastIndexOf('.');
-        return (lastDotIndex > 0 ? fileName.substring(lastDotIndex) : "");
+            minioClient.copyObject(CopyObjectArgs.builder()
+                    .bucket(bucket)
+                    .object(newPath)
+                    .source(CopySource.builder()
+                            .bucket(bucket)
+                            .object(sourcePath)
+                            .build())
+                    .build());
+
+            remove(new RemoveFileRequestDTO(requestDTO.getNameFile(), requestDTO.getPath()));
+        } catch (Exception e) {
+            throw new FileException("File renaming error, try again");
+        }
     }
+
+    private String addFileExtension(String sourceName, String newName) {
+        int lastDotIndexSource = sourceName.lastIndexOf('.');
+        int lastDotIndexNew = newName.lastIndexOf('.');
+
+        if (lastDotIndexSource > 0 && lastDotIndexNew <= 0) {
+            return newName + sourceName.substring(lastDotIndexSource);
+        }
+        return newName;
+    }
+
 }
 

@@ -4,6 +4,7 @@ import com.google.common.net.HttpHeaders;
 import jakarta.validation.Valid;
 import org.nastya.filestorage.DTO.file.DownloadFileRequestDTO;
 import org.nastya.filestorage.DTO.file.RemoveFileRequestDTO;
+import org.nastya.filestorage.DTO.file.RenameFileRequestDTO;
 import org.nastya.filestorage.DTO.file.UploadFileRequestDTO;
 import org.nastya.filestorage.security.CustomUserDetails;
 import org.nastya.filestorage.service.FileService;
@@ -65,12 +66,15 @@ public class FileController {
     }
 
 
-//    @PostMapping("/rename")
-//    public String renameFile(@RequestParam("fileName") String sourceFile, @RequestParam("newFile") String newFile,
-//                             @AuthenticationPrincipal CustomUserDetails userDetails){
-//        fileService.rename(userDetails.getId(), sourceFile, newFile);
-//
-//        return "redirect:/home";
-//    }
+    @PostMapping("/rename")
+    public String renameFile(@ModelAttribute("files") RenameFileRequestDTO requestDTO,
+                             @AuthenticationPrincipal CustomUserDetails userDetails){
+        String fullPath = MinioUtil.getUserPrefix(userDetails.getId()) + requestDTO.getPath();
+        requestDTO.setPath(fullPath);
+
+        fileService.rename(requestDTO);
+
+        return "redirect:/home";
+    }
 
 }
