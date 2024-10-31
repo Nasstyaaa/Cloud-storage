@@ -2,6 +2,7 @@ package org.nastya.filestorage.controller;
 
 import com.google.common.net.HttpHeaders;
 import org.nastya.filestorage.DTO.folder.DownloadFolderRequestDTO;
+import org.nastya.filestorage.DTO.folder.RemoveFolderRequestDTO;
 import org.nastya.filestorage.DTO.folder.UploadFolderRequestDTO;
 import org.nastya.filestorage.security.CustomUserDetails;
 import org.nastya.filestorage.service.FolderService;
@@ -37,7 +38,7 @@ public class FolderController {
     }
 
     @GetMapping("/download")
-    public ResponseEntity<ByteArrayResource> downloadFolder(@ModelAttribute("folderDownload") DownloadFolderRequestDTO requestDTO,
+    public ResponseEntity<ByteArrayResource> downloadFolder(@ModelAttribute("folder") DownloadFolderRequestDTO requestDTO,
                                                             @AuthenticationPrincipal CustomUserDetails userDetails) {
         String fullPath = MinioUtil.getUserPrefix(userDetails.getId()) + requestDTO.getPath();
         String fullName = MinioUtil.addSeparator(requestDTO.getNameFolder());
@@ -52,14 +53,19 @@ public class FolderController {
                 .body(fileData);
     }
 
-//    @PostMapping("/remove")
-//    public String removeFolder(@RequestParam("folder") String folder,
-//                               @AuthenticationPrincipal CustomUserDetails userDetails) {
-//        folderService.remove(userDetails.getId(), folder + "/");
-//
-//        return "redirect:/home";
-//    }
-//
+    @PostMapping("/remove")
+    public String removeFolder(@ModelAttribute("folder") RemoveFolderRequestDTO requestDTO,
+                               @AuthenticationPrincipal CustomUserDetails userDetails) {
+        String fullPath = MinioUtil.getUserPrefix(userDetails.getId()) + requestDTO.getPath();
+        String fullName = MinioUtil.addSeparator(requestDTO.getNameFolder());
+        requestDTO.setPath(fullPath);
+        requestDTO.setNameFolder(fullName);
+
+        folderService.remove(requestDTO);
+
+        return "redirect:/home";
+    }
+
 //    @PostMapping("/rename")
 //    public String renameFolder(@RequestParam("folderName") String sourceFolder, @RequestParam("newFolder") String newFolder,
 //                             @AuthenticationPrincipal CustomUserDetails userDetails) {

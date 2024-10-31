@@ -3,8 +3,10 @@ package org.nastya.filestorage.service;
 import io.minio.*;
 import io.minio.messages.Item;
 import org.nastya.filestorage.DTO.file.DownloadFileRequestDTO;
+import org.nastya.filestorage.DTO.file.RemoveFileRequestDTO;
 import org.nastya.filestorage.DTO.file.UploadFileRequestDTO;
 import org.nastya.filestorage.DTO.folder.DownloadFolderRequestDTO;
+import org.nastya.filestorage.DTO.folder.RemoveFolderRequestDTO;
 import org.nastya.filestorage.DTO.folder.UploadFolderRequestDTO;
 import org.nastya.filestorage.exception.*;
 import org.nastya.filestorage.util.MinioUtil;
@@ -40,20 +42,20 @@ public class FolderService extends ObjectService {
     }
 
 
-//    public void remove(int idUser, String folder) {
-//        Iterable<Result<Item>> results = MinioUtil.getAllFolderObjects(minioClient, bucket,
-//                MinioUtil.getFullPathObject(idUser, folder));
-//        results.forEach(itemResult -> {
-//            try {
-//                String objectName = MinioUtil.getObjectWithoutUserPrefix(idUser, itemResult.get().objectName());
-//                fileService.remove(idUser, objectName);
-//            } catch (Exception e) {
-//                throw new FolderException("Folder deletion error, try again");
-//            }
-//        });
-//    }
-//
-//
+    public void remove(RemoveFolderRequestDTO requestDTO) {
+        Iterable<Result<Item>> results = MinioUtil.getAllFolderObjects(minioClient, bucket,
+                requestDTO.getPath() + requestDTO.getNameFolder());
+        results.forEach(itemResult -> {
+            try {
+                String objectName = MinioUtil.getObjectWithoutPrefix(itemResult.get().objectName(), requestDTO.getPath());
+                fileService.remove(new RemoveFileRequestDTO(objectName, requestDTO.getPath()));
+            } catch (Exception e) {
+                throw new FolderException("Folder deletion error, try again");
+            }
+        });
+    }
+
+
 //    public void rename(int idUser, String sourceName, String newName) {
 //        Iterable<Result<Item>> results = MinioUtil.getAllFolderObjects(minioClient, bucket,
 //                MinioUtil.getFullPathObject(idUser, sourceName));
