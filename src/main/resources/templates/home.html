@@ -219,8 +219,9 @@
                     </form>
 
 
-                    <form th:action="@{file/remove}" method="post" style="display:inline;">
-                        <input type="hidden" name="file" th:value="${file}"/>
+                    <form th:action="@{file/remove}" method="post" style="display:inline;" th:object="${files}">
+                        <input type="hidden" name="nameFile" th:value="${file}"/>
+                        <input type="hidden" name="path" value="/" />
                         <button type="submit" class="btn btn-sm btn-outline-danger ml-2" title="Remove">
                             <span class="fa fa-trash"></span>
                         </button>

@@ -2,6 +2,7 @@ package org.nastya.filestorage.service;
 
 import io.minio.*;
 import org.nastya.filestorage.DTO.file.DownloadFileRequestDTO;
+import org.nastya.filestorage.DTO.file.RemoveFileRequestDTO;
 import org.nastya.filestorage.DTO.file.UploadFileRequestDTO;
 import org.nastya.filestorage.exception.*;
 import org.nastya.filestorage.util.MinioUtil;
@@ -10,7 +11,6 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -53,12 +53,12 @@ public class FileService extends ObjectService {
     }
 
 
-    public void remove(int idUser, String file) {
+    public void remove(RemoveFileRequestDTO requestDTO) {
         try {
             minioClient.removeObject(
                     RemoveObjectArgs.builder()
                             .bucket(bucket)
-                            .object(MinioUtil.getFullPathObject(idUser, file))
+                            .object(requestDTO.getPath() + requestDTO.getNameFile())
                             .build()
             );
         } catch (Exception e) {
@@ -67,25 +67,25 @@ public class FileService extends ObjectService {
     }
 
 
-    public void rename(int idUser, String sourceName, String newName) {
-        try {
-            String newPath = MinioUtil.getFullPathObject(idUser, newName + getFileExtension(sourceName)); //TODO в папках не должно добавляться
-            String sourcePath = MinioUtil.getFullPathObject(idUser, sourceName);
-
-            minioClient.copyObject(CopyObjectArgs.builder()
-                    .bucket(bucket)
-                    .object(newPath)
-                    .source(CopySource.builder()
-                            .bucket(bucket)
-                            .object(sourcePath)
-                            .build())
-                    .build());
-
-            remove(idUser, sourceName);
-        } catch (Exception e) {
-            throw new FileException("File renaming error, try again");
-        }
-    }
+//    public void rename(int idUser, String sourceName, String newName) {
+//        try {
+//            String newPath = MinioUtil.getFullPathObject(idUser, newName + getFileExtension(sourceName)); //TODO в папках не должно добавляться
+//            String sourcePath = MinioUtil.getFullPathObject(idUser, sourceName);
+//
+//            minioClient.copyObject(CopyObjectArgs.builder()
+//                    .bucket(bucket)
+//                    .object(newPath)
+//                    .source(CopySource.builder()
+//                            .bucket(bucket)
+//                            .object(sourcePath)
+//                            .build())
+//                    .build());
+//
+//            remove(idUser, sourceName);
+//        } catch (Exception e) {
+//            throw new FileException("File renaming error, try again");
+//        }
+//    }
 
     private String getFileExtension(String fileName) {
         int lastDotIndex = fileName.lastIndexOf('.');
