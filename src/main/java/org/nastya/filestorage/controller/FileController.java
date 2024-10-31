@@ -6,6 +6,7 @@ import org.nastya.filestorage.DTO.file.DownloadFileRequestDTO;
 import org.nastya.filestorage.DTO.file.RemoveFileRequestDTO;
 import org.nastya.filestorage.DTO.file.RenameFileRequestDTO;
 import org.nastya.filestorage.DTO.file.UploadFileRequestDTO;
+import org.nastya.filestorage.exception.EmptyObjectNameException;
 import org.nastya.filestorage.security.CustomUserDetails;
 import org.nastya.filestorage.service.FileService;
 import org.nastya.filestorage.util.MinioUtil;
@@ -69,6 +70,9 @@ public class FileController {
     @PostMapping("/rename")
     public String renameFile(@ModelAttribute("files") RenameFileRequestDTO requestDTO,
                              @AuthenticationPrincipal CustomUserDetails userDetails){
+        if (requestDTO.getNewName().isEmpty()){
+            throw new EmptyObjectNameException();
+        }
         String fullPath = MinioUtil.getUserPrefix(userDetails.getId()) + requestDTO.getPath();
         requestDTO.setPath(fullPath);
 
