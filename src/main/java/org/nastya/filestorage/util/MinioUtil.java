@@ -7,12 +7,13 @@ import io.minio.messages.Item;
 
 public class MinioUtil {
 
-    public static String getFullPathObject(int idUser, String object) {
-        return ("user-" + idUser + "-files/") + object;
-    }
-
     public static String getUserPrefix(int idUser) {
         return "user-" + idUser + "-files/";
+    }
+
+    public static String getObjectWithoutPref(String object){
+        int startIndex = object.indexOf("/");
+        return object.substring(startIndex + 1);
     }
 
     public static String getObjectWithoutPrefix(String object, String prefix) {

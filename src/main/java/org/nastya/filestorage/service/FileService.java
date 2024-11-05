@@ -1,12 +1,10 @@
 package org.nastya.filestorage.service;
 
 import io.minio.*;
-import org.nastya.filestorage.DTO.file.DownloadFileRequestDTO;
-import org.nastya.filestorage.DTO.file.RemoveFileRequestDTO;
-import org.nastya.filestorage.DTO.file.RenameFileRequestDTO;
-import org.nastya.filestorage.DTO.file.UploadFileRequestDTO;
+import org.nastya.filestorage.DTO.BreadcrumbsDTO;
+import org.nastya.filestorage.DTO.file.*;
+import org.nastya.filestorage.DTO.folder.FolderRequestDTO;
 import org.nastya.filestorage.exception.*;
-import org.nastya.filestorage.util.MinioUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
@@ -22,8 +20,8 @@ public class FileService extends ObjectService {
         super(minioClient);
     }
 
-    public List<String> getAll(int idUser) {
-        return getAll(idUser, true);
+    public List<BreadcrumbsDTO> getAll(FolderRequestDTO requestDTO) {
+        return getAll(requestDTO, true);
     }
 
     public void upload(UploadFileRequestDTO requestDTO) {
@@ -70,9 +68,8 @@ public class FileService extends ObjectService {
 
     public void rename(RenameFileRequestDTO requestDTO) {
         try {
-            String newPath = requestDTO.getPath() + addFileExtension(requestDTO.getNameFile(), requestDTO.getNewName());
             String sourcePath = requestDTO.getPath() + requestDTO.getNameFile();
-
+            String newPath = requestDTO.getNewName() + requestDTO.getNameFile();
             minioClient.copyObject(CopyObjectArgs.builder()
                     .bucket(bucket)
                     .object(newPath)
@@ -87,16 +84,5 @@ public class FileService extends ObjectService {
             throw new FileException("File renaming error, try again");
         }
     }
-
-    private String addFileExtension(String sourceName, String newName) {
-        int lastDotIndexSource = sourceName.lastIndexOf('.');
-        int lastDotIndexNew = newName.lastIndexOf('.');
-
-        if (lastDotIndexSource > 0 && lastDotIndexNew <= 0) {
-            return newName + sourceName.substring(lastDotIndexSource);
-        }
-        return newName;
-    }
-
 }
 

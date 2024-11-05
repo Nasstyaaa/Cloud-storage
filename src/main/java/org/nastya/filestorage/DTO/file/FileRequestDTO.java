@@ -7,6 +7,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public abstract class FileRequestDTO {
+public class FileRequestDTO {
     protected String path;
 }

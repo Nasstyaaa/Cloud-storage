@@ -2,14 +2,9 @@ package org.nastya.filestorage.service;
 
 import io.minio.*;
 import io.minio.messages.Item;
-import org.nastya.filestorage.DTO.file.DownloadFileRequestDTO;
-import org.nastya.filestorage.DTO.file.RemoveFileRequestDTO;
-import org.nastya.filestorage.DTO.file.RenameFileRequestDTO;
-import org.nastya.filestorage.DTO.file.UploadFileRequestDTO;
-import org.nastya.filestorage.DTO.folder.DownloadFolderRequestDTO;
-import org.nastya.filestorage.DTO.folder.RemoveFolderRequestDTO;
-import org.nastya.filestorage.DTO.folder.RenameFolderRequestDTO;
-import org.nastya.filestorage.DTO.folder.UploadFolderRequestDTO;
+import org.nastya.filestorage.DTO.BreadcrumbsDTO;
+import org.nastya.filestorage.DTO.file.*;
+import org.nastya.filestorage.DTO.folder.*;
 import org.nastya.filestorage.exception.*;
 import org.nastya.filestorage.util.MinioUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +27,8 @@ public class FolderService extends ObjectService {
         this.fileService = fileService;
     }
 
-    public List<String> getAll(int idUser) {
-        return getAll(idUser, false);
+    public List<BreadcrumbsDTO> getAll(FolderRequestDTO requestDTO) {
+        return getAll(requestDTO, false);
     }
 
 
@@ -45,8 +40,7 @@ public class FolderService extends ObjectService {
 
 
     public void remove(RemoveFolderRequestDTO requestDTO) {
-        Iterable<Result<Item>> results = MinioUtil.getAllFolderObjects(minioClient, bucket,
-                requestDTO.getPath() + requestDTO.getNameFolder());
+        Iterable<Result<Item>> results = MinioUtil.getAllFolderObjects(minioClient, bucket, requestDTO.getPath());
         results.forEach(itemResult -> {
             try {
                 String objectName = MinioUtil.getObjectWithoutPrefix(itemResult.get().objectName(), requestDTO.getPath());
@@ -59,15 +53,11 @@ public class FolderService extends ObjectService {
 
 
     public void rename(RenameFolderRequestDTO requestDTO) {
-        Iterable<Result<Item>> results = MinioUtil.getAllFolderObjects(minioClient, bucket,
-                requestDTO.getPath() + requestDTO.getNameFolder());
-
+        Iterable<Result<Item>> results = MinioUtil.getAllFolderObjects(minioClient, bucket, requestDTO.getPath());
         results.forEach(itemResult -> {
             try {
-                String oldObjectName = MinioUtil.getObjectWithoutPrefix(itemResult.get().objectName(), requestDTO.getPath());
-                int firstSlashIndex = oldObjectName.indexOf('/'); //TODO не очень
-                String newObjectName = requestDTO.getNewName() + oldObjectName.substring(firstSlashIndex + 1);
-                fileService.rename(new RenameFileRequestDTO(oldObjectName, newObjectName, requestDTO.getPath()));
+                String fileName = MinioUtil.getObjectWithoutPrefix(itemResult.get().objectName(), requestDTO.getPath());
+                fileService.rename(new RenameFileRequestDTO(fileName, requestDTO.getNewPath(), requestDTO.getPath()));
             } catch (Exception e) {
                 throw new FolderException("Folder renaming error, try again");
             }
@@ -76,8 +66,7 @@ public class FolderService extends ObjectService {
 
     public ByteArrayResource download(DownloadFolderRequestDTO requestDTO) {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        Iterable<Result<Item>> results = MinioUtil.getAllFolderObjects(minioClient, bucket,
-               requestDTO.getPath() + requestDTO.getNameFolder());
+        Iterable<Result<Item>> results = MinioUtil.getAllFolderObjects(minioClient, bucket, requestDTO.getPath());
 
         try (ZipOutputStream zipOutputStream = new ZipOutputStream(byteArrayOutputStream)) {
             for (Result<Item> itemResult : results) {

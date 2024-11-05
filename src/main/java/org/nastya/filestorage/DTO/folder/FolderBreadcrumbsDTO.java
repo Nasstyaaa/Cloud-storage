@@ -7,6 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class FolderRequestDTO {
-    protected String path;
+public class FolderBreadcrumbsDTO {
+    private String name;
+    private String path;
 }
