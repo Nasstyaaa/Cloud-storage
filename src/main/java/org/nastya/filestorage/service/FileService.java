@@ -43,7 +43,7 @@ public class FileService extends ObjectService {
             GetObjectResponse object = minioClient.getObject(
                     GetObjectArgs.builder()
                             .bucket(bucket)
-                            .object(requestDTO.getPath() + requestDTO.getNameFile())
+                            .object(requestDTO.getPath())
                             .build());
             return new ByteArrayResource(object.readAllBytes());
         } catch (Exception e) {
@@ -57,7 +57,7 @@ public class FileService extends ObjectService {
             minioClient.removeObject(
                     RemoveObjectArgs.builder()
                             .bucket(bucket)
-                            .object(requestDTO.getPath() + requestDTO.getNameFile())
+                            .object(requestDTO.getPath())
                             .build()
             );
         } catch (Exception e) {
@@ -68,8 +68,8 @@ public class FileService extends ObjectService {
 
     public void rename(RenameFileRequestDTO requestDTO) {
         try {
-            String sourcePath = requestDTO.getPath() + requestDTO.getNameFile();
-            String newPath = requestDTO.getNewName() + requestDTO.getNameFile();
+            String sourcePath = requestDTO.getPath();
+            String newPath = addFileExtension(sourcePath, requestDTO.getNewPath());
             minioClient.copyObject(CopyObjectArgs.builder()
                     .bucket(bucket)
                     .object(newPath)
@@ -79,10 +79,20 @@ public class FileService extends ObjectService {
                             .build())
                     .build());
 
-            remove(new RemoveFileRequestDTO(requestDTO.getNameFile(), requestDTO.getPath()));
+            remove(new RemoveFileRequestDTO("", requestDTO.getPath()));
         } catch (Exception e) {
             throw new FileException("File renaming error, try again");
         }
+    }
+
+    private String addFileExtension(String sourceName, String newName) {
+        int lastDotIndexSource = sourceName.lastIndexOf('.');
+        int lastDotIndexNew = newName.lastIndexOf('.');
+
+        if (lastDotIndexSource > 0 && lastDotIndexNew <= 0) {
+            return newName + sourceName.substring(lastDotIndexSource);
+        }
+        return newName;
     }
 }
 

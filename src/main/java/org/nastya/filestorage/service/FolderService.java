@@ -43,8 +43,7 @@ public class FolderService extends ObjectService {
         Iterable<Result<Item>> results = MinioUtil.getAllFolderObjects(minioClient, bucket, requestDTO.getPath());
         results.forEach(itemResult -> {
             try {
-                String objectName = MinioUtil.getObjectWithoutPrefix(itemResult.get().objectName(), requestDTO.getPath());
-                fileService.remove(new RemoveFileRequestDTO(objectName, requestDTO.getPath()));
+                fileService.remove(new RemoveFileRequestDTO("", itemResult.get().objectName()));
             } catch (Exception e) {
                 throw new FolderException("Folder deletion error, try again");
             }
@@ -56,8 +55,9 @@ public class FolderService extends ObjectService {
         Iterable<Result<Item>> results = MinioUtil.getAllFolderObjects(minioClient, bucket, requestDTO.getPath());
         results.forEach(itemResult -> {
             try {
-                String fileName = MinioUtil.getObjectWithoutPrefix(itemResult.get().objectName(), requestDTO.getPath());
-                fileService.rename(new RenameFileRequestDTO(fileName, requestDTO.getNewPath(), requestDTO.getPath()));
+                String fileName = "/" + MinioUtil.getObjectWithoutPrefix(itemResult.get().objectName(), requestDTO.getPath());
+                fileService.rename(new RenameFileRequestDTO("", requestDTO.getNewPath() + fileName,
+                        requestDTO.getPath() + fileName));
             } catch (Exception e) {
                 throw new FolderException("Folder renaming error, try again");
             }
@@ -71,7 +71,7 @@ public class FolderService extends ObjectService {
         try (ZipOutputStream zipOutputStream = new ZipOutputStream(byteArrayOutputStream)) {
             for (Result<Item> itemResult : results) {
                 String objectName = MinioUtil.getObjectWithoutPrefix(itemResult.get().objectName(), requestDTO.getPath());
-                addFileToZip(zipOutputStream, new DownloadFileRequestDTO(objectName, requestDTO.getPath()));
+                addFileToZip(zipOutputStream, new DownloadFileRequestDTO(objectName, itemResult.get().objectName()));
             }
         } catch (Exception e) {
             throw new FolderException("Error downloading the folder, try again");

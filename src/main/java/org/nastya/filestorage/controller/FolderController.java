@@ -17,6 +17,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -34,12 +35,13 @@ public class FolderController {
     @PostMapping("/upload")
     public String uploadFolder(@ModelAttribute("folder") UploadFolderRequestDTO requestDTO,
                                @AuthenticationPrincipal CustomUserDetails userDetails) {
-        String folderPath = requestDTO.getPath().replace(Arrays.toString(requestDTO.getFolder()) + "/", "");
+        String folderPath = requestDTO.getPath();
         String fullPath = MinioUtil.getUserPrefix(userDetails.getId()) + requestDTO.getPath();
         requestDTO.setPath(fullPath);
 
         folderService.upload(requestDTO);
-        return "redirect:/home?path=" + folderPath;
+        String encodedFolderPath = URLEncoder.encode(folderPath, StandardCharsets.UTF_8);
+        return "redirect:/home?path=" + encodedFolderPath;
     }
 
     @GetMapping("/download")
@@ -71,7 +73,7 @@ public class FolderController {
     @PostMapping("/rename")
     public String renameFolder(@ModelAttribute("folder") RenameFolderRequestDTO requestDTO,
                                @AuthenticationPrincipal CustomUserDetails userDetails) {
-        if (requestDTO.getNewPath().isEmpty()){
+        if (requestDTO.getNewPath().isEmpty()) {
             throw new EmptyObjectNameException();
         }
 

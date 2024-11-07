@@ -7,11 +7,11 @@ import lombok.Setter;
 @Setter
 public class RenameFileRequestDTO extends FileRequestDTO{
     private String nameFile;
-    private String newName;
+    private String newPath;
 
-    public RenameFileRequestDTO(String nameFile, String newName, String path) {
+    public RenameFileRequestDTO(String nameFile, String newPath, String path) {
         super(path);
         this.nameFile = nameFile;
-        this.newName = newName;
+        this.newPath = newPath;
     }
 }
