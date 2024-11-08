@@ -9,6 +9,7 @@ import org.nastya.filestorage.exception.EmptyObjectNameException;
 import org.nastya.filestorage.security.CustomUserDetails;
 import org.nastya.filestorage.service.FolderService;
 import org.nastya.filestorage.util.MinioUtil;
+import org.nastya.filestorage.util.PathUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.MediaType;
@@ -21,6 +22,10 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+
+import static org.nastya.filestorage.util.PathUtil.getFullPath;
+import static org.nastya.filestorage.util.PathUtil.getPathToFolder;
+
 
 @Controller
 @RequestMapping("/folder")
@@ -35,19 +40,18 @@ public class FolderController {
     @PostMapping("/upload")
     public String uploadFolder(@ModelAttribute("folder") UploadFolderRequestDTO requestDTO,
                                @AuthenticationPrincipal CustomUserDetails userDetails) {
-        String folderPath = requestDTO.getPath();
-        String fullPath = MinioUtil.getUserPrefix(userDetails.getId()) + requestDTO.getPath();
+        String encodedFolderPath = URLEncoder.encode(requestDTO.getPath(), StandardCharsets.UTF_8);
+        String fullPath = getFullPath(userDetails.getId(), requestDTO.getPath());
         requestDTO.setPath(fullPath);
 
         folderService.upload(requestDTO);
-        String encodedFolderPath = URLEncoder.encode(folderPath, StandardCharsets.UTF_8);
         return "redirect:/home?path=" + encodedFolderPath;
     }
 
     @GetMapping("/download")
     public ResponseEntity<ByteArrayResource> downloadFolder(@ModelAttribute("folder") DownloadFolderRequestDTO requestDTO,
                                                             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        String fullPath = MinioUtil.getUserPrefix(userDetails.getId()) + requestDTO.getPath();
+        String fullPath = getFullPath(userDetails.getId(), requestDTO.getPath());
         requestDTO.setPath(fullPath);
 
         ByteArrayResource fileData = folderService.download(requestDTO);
@@ -61,13 +65,13 @@ public class FolderController {
     @PostMapping("/remove")
     public String removeFolder(@ModelAttribute("folder") RemoveFolderRequestDTO requestDTO,
                                @AuthenticationPrincipal CustomUserDetails userDetails) {
-        String folderPath = requestDTO.getPath().replace(requestDTO.getNameFolder() + "/", "");
-        String fullPath = MinioUtil.getUserPrefix(userDetails.getId()) + requestDTO.getPath();
+        String pathToFolder = getPathToFolder(requestDTO.getPath(), requestDTO.getNameFolder());
+        String fullPath = getFullPath(userDetails.getId(), requestDTO.getPath());
         requestDTO.setPath(fullPath);
 
         folderService.remove(requestDTO);
 
-        return "redirect:/home?path=" + folderPath;
+        return "redirect:/home?path=" + pathToFolder;
     }
 
     @PostMapping("/rename")
@@ -77,14 +81,14 @@ public class FolderController {
             throw new EmptyObjectNameException();
         }
 
-        String folderPath = requestDTO.getPath().replace(requestDTO.getNameFolder() + "/", "");
-        String fullPath = MinioUtil.getUserPrefix(userDetails.getId()) + requestDTO.getPath();
+        String pathToFolder = getPathToFolder(requestDTO.getPath(), requestDTO.getNameFolder());
+        String fullPath = getFullPath(userDetails.getId(), requestDTO.getPath());
         String newFullPath = fullPath.replace(requestDTO.getNameFolder(), requestDTO.getNewPath());
         requestDTO.setPath(fullPath);
         requestDTO.setNewPath(newFullPath);
 
         folderService.rename(requestDTO);
 
-        return "redirect:/home?path=" + folderPath;
+        return "redirect:/home?path=" + pathToFolder;
     }
 }

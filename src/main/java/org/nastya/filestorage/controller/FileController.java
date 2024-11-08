@@ -19,6 +19,9 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
+import static org.nastya.filestorage.util.PathUtil.getFullPath;
+import static org.nastya.filestorage.util.PathUtil.getPathToFile;
+
 @Controller
 @RequestMapping("/file")
 public class FileController {
@@ -33,19 +36,18 @@ public class FileController {
     @PostMapping("/upload")
     public String uploadFile(@ModelAttribute("files") UploadFileRequestDTO requestDTO,
                              @AuthenticationPrincipal CustomUserDetails userDetails) {
-        String filePath = requestDTO.getPath();
-        String fullPath = MinioUtil.getUserPrefix(userDetails.getId()) + requestDTO.getPath();
+        String encodedFilePath = URLEncoder.encode(requestDTO.getPath(), StandardCharsets.UTF_8);
+        String fullPath = getFullPath(userDetails.getId(), requestDTO.getPath());
         requestDTO.setPath(fullPath);
 
         fileService.upload(requestDTO);
-        String encodedFilePath = URLEncoder.encode(filePath, StandardCharsets.UTF_8);
         return "redirect:/home?path=" + encodedFilePath;
     }
 
     @GetMapping("/download")
     public ResponseEntity<ByteArrayResource> downloadFile(@ModelAttribute("files") DownloadFileRequestDTO requestDTO,
                                                           @AuthenticationPrincipal CustomUserDetails userDetails){
-        String fullPath = MinioUtil.getUserPrefix(userDetails.getId()) + requestDTO.getPath();
+        String fullPath = getFullPath(userDetails.getId(), requestDTO.getPath());
         requestDTO.setPath(fullPath);
 
         ByteArrayResource fileData = fileService.download(requestDTO);
@@ -59,12 +61,12 @@ public class FileController {
     @PostMapping("/remove")
     public String removeFile(@ModelAttribute("files") RemoveFileRequestDTO requestDTO,
                              @AuthenticationPrincipal CustomUserDetails userDetails){
-        String filePath = requestDTO.getPath().replace(requestDTO.getNameFile(), "");
-        String fullPath = MinioUtil.getUserPrefix(userDetails.getId()) + requestDTO.getPath();
+        String pathToFile = getPathToFile(requestDTO.getPath(), requestDTO.getNameFile());
+        String fullPath = getFullPath(userDetails.getId(), requestDTO.getPath());
         requestDTO.setPath(fullPath);
 
         fileService.remove(requestDTO);
-        return "redirect:/home?path=" + filePath;
+        return "redirect:/home?path=" + pathToFile;
     }
 
 
@@ -74,15 +76,16 @@ public class FileController {
         if (requestDTO.getNewPath().isEmpty()){
             throw new EmptyObjectNameException();
         }
-        String filePath = requestDTO.getPath().replace(requestDTO.getNameFile(), "");
-        String fullPath = MinioUtil.getUserPrefix(userDetails.getId()) + requestDTO.getPath();
-        String newFullPath = fullPath.replace(requestDTO.getPath(), requestDTO.getNewPath());
+
+        String pathToFile = getPathToFile(requestDTO.getPath(), requestDTO.getNameFile());
+        String fullPath = getFullPath(userDetails.getId(), requestDTO.getPath());
+        String newFullPath = fullPath.replace(requestDTO.getNameFile(), requestDTO.getNewPath());
         requestDTO.setPath(fullPath);
         requestDTO.setNewPath(newFullPath);
 
         fileService.rename(requestDTO);
 
-        return "redirect:/home?path=" + filePath;
+        return "redirect:/home?path=" + pathToFile;
     }
 
 }

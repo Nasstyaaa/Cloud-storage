@@ -7,6 +7,7 @@ import org.nastya.filestorage.DTO.file.*;
 import org.nastya.filestorage.DTO.folder.*;
 import org.nastya.filestorage.exception.*;
 import org.nastya.filestorage.util.MinioUtil;
+import org.nastya.filestorage.util.PathUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Service;
@@ -55,7 +56,7 @@ public class FolderService extends ObjectService {
         Iterable<Result<Item>> results = MinioUtil.getAllFolderObjects(minioClient, bucket, requestDTO.getPath());
         results.forEach(itemResult -> {
             try {
-                String fileName = "/" + MinioUtil.getObjectWithoutPrefix(itemResult.get().objectName(), requestDTO.getPath());
+                String fileName = "/" + PathUtil.getObjectPathWithoutPrefix(itemResult.get().objectName(), requestDTO.getPath());
                 fileService.rename(new RenameFileRequestDTO("", requestDTO.getNewPath() + fileName,
                         requestDTO.getPath() + fileName));
             } catch (Exception e) {
@@ -70,7 +71,7 @@ public class FolderService extends ObjectService {
 
         try (ZipOutputStream zipOutputStream = new ZipOutputStream(byteArrayOutputStream)) {
             for (Result<Item> itemResult : results) {
-                String objectName = MinioUtil.getObjectWithoutPrefix(itemResult.get().objectName(), requestDTO.getPath());
+                String objectName = PathUtil.getObjectPathWithoutPrefix(itemResult.get().objectName(), requestDTO.getPath());
                 addFileToZip(zipOutputStream, new DownloadFileRequestDTO(objectName, itemResult.get().objectName()));
             }
         } catch (Exception e) {

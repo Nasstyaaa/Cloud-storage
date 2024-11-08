@@ -34,7 +34,7 @@ public abstract class ObjectService {
         Iterable<Result<Item>> results = MinioUtil.getFolderObjects(minioClient, bucket, requestDTO.getPath());
         results.forEach(itemResult -> {
             try {
-                String object = MinioUtil.getObjectWithoutPref(itemResult.get().objectName());
+                String object = MinioUtil.getObjectWithoutUserPrefix(itemResult.get().objectName());
                 String objectName = Paths.get(object).getFileName().toString();
                 if (!isFile) {
                     if (isFolder(object)) {
