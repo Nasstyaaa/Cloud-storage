@@ -16,6 +16,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
+import static org.nastya.filestorage.util.BreadcrumbsUtil.createBreadcrumbs;
+import static org.nastya.filestorage.util.PathUtil.getFullPath;
+
 
 @Controller
 @RequestMapping("/home")
@@ -34,12 +37,14 @@ public class HomePageController {
     @GetMapping
     public String homePage(@RequestParam(name = "path", required = false, defaultValue = "") String path, Model model,
                            @AuthenticationPrincipal CustomUserDetails userDetails) {
-        String fullPath = MinioUtil.getUserPrefix(userDetails.getId()) + path;
+        String fullPath = getFullPath(userDetails.getId(), path);
         FolderRequestDTO requestDTO = new FolderRequestDTO(fullPath);
 
         List<BreadcrumbsDTO> fileList = fileService.getAll(requestDTO);
         List<BreadcrumbsDTO> folderList = folderService.getAll(requestDTO);
+        List<BreadcrumbsDTO> breadcrumbsDTOList = createBreadcrumbs(path);
 
+        model.addAttribute("breadcrumbs", breadcrumbsDTOList);
         model.addAttribute("files", fileList);
         model.addAttribute("folders", folderList);
         model.addAttribute("username", userDetails.getUsername());

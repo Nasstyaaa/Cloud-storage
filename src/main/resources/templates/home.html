@@ -189,8 +189,16 @@
 </header>
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="#" onclick="navigateTo('')">Root</a></li>
-        <li class="breadcrumb-item active" id="current-path">Home</li>
+        <li class="breadcrumb-item">
+            <a th:href="@{/home}" style="color: #001f3f">Home</a>
+        </li>
+
+        <li th:each="breadcrumb : ${breadcrumbs}" class="breadcrumb-item">
+            <a th:href="@{/home(path=${breadcrumb.path})}"
+               th:text="${breadcrumb.name}"
+               style="color: #001f3f">
+            </a>
+        </li>
     </ol>
 </nav>
 
