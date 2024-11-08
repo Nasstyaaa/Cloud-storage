@@ -15,9 +15,16 @@ public class GlobalExceptionHandler{
     }
 
     @ExceptionHandler({FolderException.class, FileException.class, EmptyObjectNameException.class})
-    public String handleFileUploadException(RuntimeException e,
+    public String handleFileOrFolderException(RuntimeException e,
                                             RedirectAttributes redirectAttributes){
         redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         return "redirect:/home";
+    }
+
+    @ExceptionHandler(SearchFileError.class)
+    public String handleSearchException(RuntimeException e,
+                                        RedirectAttributes redirectAttributes){
+        redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        return "redirect:/search";
     }
 }

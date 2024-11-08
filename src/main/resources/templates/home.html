@@ -78,7 +78,7 @@
             margin-top: 20px;
             padding: 20px;
             width: 150px;
-            height: 150px;
+            height: 80px;
             background-color: rgba(255, 255, 255, 0.1);
             border: 2px dashed yellow;
             border-radius: 10px;
@@ -116,7 +116,6 @@
         }
 
         .file-list, .folder-list {
-            margin-top: 20px;
             width: 100%;
             background-color: rgba(255, 255, 255, 0.1);
             border: 2px solid yellow;
@@ -180,6 +179,7 @@
 <body>
 <header class="header">
     <h1>Cloud File Storage</h1>
+
     <div class="user-info">
         <p><span th:text="${username}"></span></p>
         <form th:action="@{/logout}" method="post">
@@ -187,40 +187,39 @@
         </form>
     </div>
 </header>
-<nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
+
+<form th:action="@{/search}" method="get" class="form-inline" style="margin-left: 40px; margin-top: 20px">
+    <input type="text" name="query" class="form-control mr-sm-2" placeholder="Search..." aria-label="Search"
+           style="background-color: rgba(255, 255, 255, 0.1); color: white; border-color: white; width: 80%">
+    <button type="submit" class="btn btn-outline-light">Search</button>
+</form>
+
+<nav aria-label="breadcrumb" style="margin-left: 40px; margin-top: 60px">
+    <ol class="breadcrumb" style="background-color: transparent; padding: 0;">
         <li class="breadcrumb-item">
-            <a th:href="@{/home}" style="color: #001f3f">Home</a>
+            <a th:href="@{/home}" style="color: #ffeb3b;">Home</a>
         </li>
 
         <li th:each="breadcrumb : ${breadcrumbs}" class="breadcrumb-item">
             <a th:href="@{/home(path=${breadcrumb.path})}"
                th:text="${breadcrumb.name}"
-               style="color: #001f3f">
+               style="color: #ffeb3b;">
             </a>
         </li>
     </ol>
 </nav>
 
+
 <div class="content">
 
     <div class="column">
-        <div class="dropzone" id="file-dropzone">
-            <p>Drag & Drop files here</p>
-            <input type="file" id="file" name="file" multiple/>
-        </div>
-
-        <form id="upload-form" th:action="@{/file/upload}" method="post" th:object="${files}"
-              enctype="multipart/form-data">
-            <input type="file" id="hidden-file-input" name="file" multiple required style="display:none;">
-            <input type="hidden" name="path" value="">
-            <button type="submit" class="btn btn-primary">Submit File</button>
-        </form>
-
-
         <div class="file-list">
             <h5>Uploaded Files:</h5>
             <ul>
+                <li th:if="${#lists.isEmpty(files)}" style="color: white;">
+                    You haven't added any files here yet :(
+                </li>
+
                 <li th:each="file : ${files}">
                     <span class="fa fa-file"></span>
                     <span class="file-name" th:text="${file.name}"></span>
@@ -256,24 +255,29 @@
                 </li>
             </ul>
         </div>
+
+        <div class="dropzone" id="file-dropzone">
+            <p>Drag & Drop files here</p>
+            <input type="file" id="file" name="file" multiple/>
+        </div>
+
+        <form id="upload-form" th:action="@{/file/upload}" method="post" th:object="${files}"
+              enctype="multipart/form-data">
+            <input type="file" id="hidden-file-input" name="file" multiple required style="display:none;">
+            <input type="hidden" name="path" value="">
+            <button type="submit" class="btn btn-primary">Submit File</button>
+        </form>
     </div>
 
 
     <div class="column">
-        <div class="dropzone" id="folder-dropzone">
-            <p>Drag & Drop folders here</p>
-            <input type="file" id="folder" name="folder" webkitdirectory directory style="display:none;">
-        </div>
-
-        <form id="folder-upload-form" th:action="@{/folder/upload}" method="post" enctype="multipart/form-data">
-            <input type="file" id="hidden-folder-input" name="folder" webkitdirectory directory style="display:none;">
-            <input type="hidden" name="path" value="">
-            <button type="submit" class="btn btn-primary">Submit Folder</button>
-        </form>
-
         <div class="folder-list">
             <h5>Uploaded Folders:</h5>
             <ul>
+                <li th:if="${#lists.isEmpty(folders)}" style="color: white;">
+                    You haven't added any folders here yet :(
+                </li>
+
                 <li th:each="folder : ${folders}">
                     <span class="fa fa-folder"></span>
                     <a th:href="@{/home(path=${folder.path})}" th:text="${folder.name}" style="color: ghostwhite"></a>
@@ -309,6 +313,16 @@
                 </li>
             </ul>
         </div>
+        <div class="dropzone" id="folder-dropzone">
+            <p>Drag & Drop folders here</p>
+            <input type="file" id="folder" name="folder" webkitdirectory directory style="display:none;">
+        </div>
+
+        <form id="folder-upload-form" th:action="@{/folder/upload}" method="post" enctype="multipart/form-data">
+            <input type="file" id="hidden-folder-input" name="folder" webkitdirectory directory style="display:none;">
+            <input type="hidden" name="path" value="">
+            <button type="submit" class="btn btn-primary">Submit Folder</button>
+        </form>
         <div th:if="${errorMessage}" id="error-message" class="alert alert-danger" role="alert">
             <span th:text="${errorMessage}"></span>
         </div>

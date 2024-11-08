@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Search Results</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+          integrity="sha512-..." crossorigin="anonymous"/>
+    <style>
+        body {
+            background: linear-gradient(135deg, #001f3f, #007bff);
+            color: white;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .header .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .header .user-info p {
+            margin: 0;
+            margin-right: 20px;
+            font-size: 16px;
+        }
+
+        .header .btn-link {
+            color: #f39c12;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+
+        .header .btn-link:hover {
+            color: #d35400;
+            text-decoration: underline;
+        }
+
+        .container {
+            flex: 1;
+            padding: 40px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        h2 {
+            color: #ffeb3b;
+        }
+
+        .list-group-item {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid yellow;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary {
+            background-color: #f39c12;
+            border-color: #f39c12;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+
+        a {
+            color: #ffeb3b;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        a:hover {
+            color: #d35400;
+        }
+
+    </style>
+</head>
+<body>
+<header class="header">
+    <h1>Cloud File Storage</h1>
+
+    <div class="user-info">
+        <p><span th:text="${username}"></span></p>
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="btn btn-link">Logout</button>
+        </form>
+    </div>
+</header>
+
+<form th:action="@{/search}" method="get" class="form-inline" style="margin-left: 50px; margin-top: 20px">
+    <input type="text" name="query" class="form-control mr-sm-2" placeholder="Search..." aria-label="Search"
+           style="background-color: rgba(255, 255, 255, 0.1); color: white; border-color: white; width: 80%">
+    <button type="submit" class="btn btn-outline-light">Search</button>
+</form>
+
+<div class="container">
+    <h2>Search Results for: <span th:text="${query}"></span></h2>
+
+    <div th:if="${searchResult.isEmpty()}">
+        <p>No results found.</p>
+    </div>
+
+    <div th:if="${!searchResult.isEmpty()}">
+        <ul class="list-group">
+            <li class="list-group-item" th:each="result : ${searchResult}">
+                <a th:href="@{/home(path=${result.path})}" th:text="${result.name}"></a>
+                <span th:text="${result.path}" style="color: grey"></span>
+            </li>
+        </ul>
+    </div>
+
+    <a th:href="@{/home}" class="btn btn-primary mt-3">Back to Home</a>
+</div>
+</body>
+</html>
