@@ -2,6 +2,7 @@ package org.nastya.filestorage.controller;
 
 import org.nastya.filestorage.DTO.BreadcrumbsDTO;
 import org.nastya.filestorage.DTO.folder.FolderRequestDTO;
+import org.nastya.filestorage.exception.EmptyFolderException;
 import org.nastya.filestorage.security.CustomUserDetails;
 import org.nastya.filestorage.service.FileService;
 import org.nastya.filestorage.service.FolderService;
@@ -39,9 +40,15 @@ public class HomePageController {
                            @AuthenticationPrincipal CustomUserDetails userDetails) {
         String fullPath = getFullPath(userDetails.getId(), path);
         FolderRequestDTO requestDTO = new FolderRequestDTO(fullPath);
+        List<BreadcrumbsDTO> fileList;
+        List<BreadcrumbsDTO> folderList;
 
-        List<BreadcrumbsDTO> fileList = fileService.getAll(requestDTO);
-        List<BreadcrumbsDTO> folderList = folderService.getAll(requestDTO);
+        try {
+            fileList = fileService.getAll(requestDTO);
+            folderList = folderService.getAll(requestDTO);
+        } catch (EmptyFolderException e) {
+            return "redirect:/home?path=";
+        }
         List<BreadcrumbsDTO> breadcrumbsDTOList = createBreadcrumbs(path);
 
         model.addAttribute("breadcrumbs", breadcrumbsDTOList);

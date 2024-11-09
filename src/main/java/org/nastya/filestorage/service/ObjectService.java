@@ -5,6 +5,7 @@ import io.minio.Result;
 import io.minio.messages.Item;
 import org.nastya.filestorage.DTO.BreadcrumbsDTO;
 import org.nastya.filestorage.DTO.folder.FolderRequestDTO;
+import org.nastya.filestorage.exception.EmptyFolderException;
 import org.nastya.filestorage.exception.InternalServerException;
 import org.nastya.filestorage.util.MinioUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,10 +29,13 @@ public abstract class ObjectService {
         this.minioClient = minioClient;
     }
 
-    protected List<BreadcrumbsDTO> getAll(FolderRequestDTO requestDTO, boolean isFile) {
+   protected List<BreadcrumbsDTO> getAll(FolderRequestDTO requestDTO, boolean isFile) {
         List<BreadcrumbsDTO> objectList = new ArrayList<>();
 
         Iterable<Result<Item>> results = MinioUtil.getFolderObjects(minioClient, bucket, requestDTO.getPath());
+        if (!results.iterator().hasNext()){
+            throw new EmptyFolderException();
+        }
         results.forEach(itemResult -> {
             try {
                 String object = MinioUtil.getObjectWithoutUserPrefix(itemResult.get().objectName());
