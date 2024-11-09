@@ -20,7 +20,7 @@ public class RegistrationService {
 
 
     @Autowired
-    public RegistrationService(UserRepository userRepository, PasswordEncoder passwordEncoder, View error) {
+    public RegistrationService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }

@@ -6,19 +6,19 @@ services:
     ports:
       - "3307:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: root_password
-      MYSQL_DATABASE: file_storage
-      MYSQL_USER: nastya
-      MYSQL_PASSWORD: 1234
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
   redis:
     image: redis:latest
     restart: always
     ports:
       - "6379:6379"
     environment:
-      - REDIS_PASSWORD=1234
-      - REDIS_PORT=6379
-      - REDIS_DATABASES=16
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_DATABASES=${REDIS_DATABASES}
   minio:
     image: minio/minio
     ports:
@@ -27,8 +27,8 @@ services:
     volumes:
       - minio_storage:/data
     environment:
-      MINIO_ROOT_USER: nastya_user
-      MINIO_ROOT_PASSWORD: strong_password123
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     command: server --console-address ":9001" /data
 
 volumes:

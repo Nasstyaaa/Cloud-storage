@@ -9,6 +9,4 @@ public class AdminController {
     public String adminPage(){
         return "admin";
     }
-
-    //TODO добавить возможность создавать админа
 }

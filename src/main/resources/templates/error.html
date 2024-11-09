@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Error</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #001f3f, #007bff);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+
+        .error-container {
+            max-width: 500px;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .error-container h1 {
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+
+        .error-container h2 {
+            font-size: 1.5em;
+            margin: 20px 0;
+        }
+
+        .error-container a {
+            font-size: 1.1em;
+            color: #ffeb3b;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+
+        .error-container a:hover {
+            color: #f39c12;
+            text-decoration: underline;
+        }
+
+        .error-container .spinner-border {
+            width: 3rem;
+            height: 3rem;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="error-container">
+    <h1>Something went wrong!</h1>
+    <h2>Our Engineers are on it</h2>
+    <a href="/home" class="btn btn-outline-light mt-3">Go Home</a>
+    <div class="spinner-border text-warning mt-4" role="status">
+        <span class="sr-only">Loading...</span>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

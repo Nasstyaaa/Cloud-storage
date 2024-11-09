@@ -29,7 +29,7 @@ public class SearchController {
 
 
     @GetMapping
-    public String searchObject(@RequestParam(name = "query", defaultValue = "") String query, Model model,
+    public String searchPage(@RequestParam(name = "query", defaultValue = "") String query, Model model,
                                @AuthenticationPrincipal CustomUserDetails userDetails){
         String path = getFullPath(userDetails.getId(), "");
         List<BreadcrumbsDTO> foundedObjects = searchService.searchObject(query, path);

@@ -10,3 +10,6 @@ public class FileStorageApplication {
         SpringApplication.run(FileStorageApplication.class, args);
     }
 }
+//TODO логи
+//TODO общая страница ошибки При неправильном адресе
+//TODO перекидывать на главную при несуществующем пути к папке и пустые папки
