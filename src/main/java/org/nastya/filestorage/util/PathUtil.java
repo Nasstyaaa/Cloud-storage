@@ -6,6 +6,11 @@ public class PathUtil {
         return object.substring(prefix.length());
     }
 
+    public static String getObjectWithoutFirstPrefix(String object) {
+        int startIndex = object.indexOf("/");
+        return object.substring(startIndex + 1);
+    }
+
     public static String getFullPath(int userPref, String path){
         return MinioUtil.getUserPrefix(userPref) + path;
     }

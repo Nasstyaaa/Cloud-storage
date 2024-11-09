@@ -1,7 +1,10 @@
 package org.nastya.filestorage.service;
 
 import io.minio.*;
+import io.minio.errors.*;
 import io.minio.messages.Item;
+import org.apache.tomcat.util.http.fileupload.FileItem;
+import org.apache.tomcat.util.http.fileupload.disk.DiskFileItemFactory;
 import org.nastya.filestorage.DTO.BreadcrumbsDTO;
 import org.nastya.filestorage.DTO.file.*;
 import org.nastya.filestorage.DTO.folder.*;
@@ -14,7 +17,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -34,8 +42,29 @@ public class FolderService extends ObjectService {
 
 
     public void upload(UploadFolderRequestDTO requestDTO) {
-        for (MultipartFile file : requestDTO.getFolder()) {
-            fileService.upload(new UploadFileRequestDTO(file, requestDTO.getPath()));
+        try {
+            uploadEmptyFolder(requestDTO);
+            for (MultipartFile file : requestDTO.getFolder()) {
+                fileService.upload(new UploadFileRequestDTO(file, requestDTO.getPath()));
+            }
+        } catch (Exception e) {
+            throw new FolderException("Folder upload error, try again");
+        }
+    }
+
+    private void uploadEmptyFolder(UploadFolderRequestDTO requestDTO) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        MultipartFile[] files = requestDTO.getFolder();
+        MultipartFile lastFile = files[files.length - 1];
+        String[] pathParts = lastFile.getOriginalFilename().split("/");
+        String fullPath = requestDTO.getPath();
+        for (int i = 0; i < pathParts.length-1; i++) {
+            fullPath += pathParts[i] + "/";
+            minioClient.putObject(
+                    PutObjectArgs.builder()
+                            .bucket(bucket)
+                            .object(fullPath)
+                            .stream(new ByteArrayInputStream(new byte[]{}), 0, -1)
+                            .build());
         }
     }
 

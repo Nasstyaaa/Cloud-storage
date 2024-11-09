@@ -11,11 +11,6 @@ public class MinioUtil {
         return "user-" + idUser + "-files/";
     }
 
-    public static String getObjectWithoutUserPrefix(String object) {
-        int startIndex = object.indexOf("/");
-        return object.substring(startIndex + 1);
-    }
-
 
     public static Iterable<Result<Item>> getFolderObjects(MinioClient minioClient, String bucket, String prefix) {
         return minioClient.listObjects(ListObjectsArgs.builder()

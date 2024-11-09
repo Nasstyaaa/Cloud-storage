@@ -8,6 +8,7 @@ import org.nastya.filestorage.DTO.folder.FolderRequestDTO;
 import org.nastya.filestorage.exception.EmptyFolderException;
 import org.nastya.filestorage.exception.InternalServerException;
 import org.nastya.filestorage.util.MinioUtil;
+import org.nastya.filestorage.util.PathUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -29,23 +30,23 @@ public abstract class ObjectService {
         this.minioClient = minioClient;
     }
 
-   protected List<BreadcrumbsDTO> getAll(FolderRequestDTO requestDTO, boolean isFile) {
+    protected List<BreadcrumbsDTO> getAll(FolderRequestDTO requestDTO, boolean isFile) {
         List<BreadcrumbsDTO> objectList = new ArrayList<>();
 
         Iterable<Result<Item>> results = MinioUtil.getFolderObjects(minioClient, bucket, requestDTO.getPath());
-        if (!results.iterator().hasNext()){
+        if (!results.iterator().hasNext()) {
             throw new EmptyFolderException();
         }
         results.forEach(itemResult -> {
             try {
-                String object = MinioUtil.getObjectWithoutUserPrefix(itemResult.get().objectName());
+                String object = PathUtil.getObjectWithoutFirstPrefix(itemResult.get().objectName());
                 String objectName = Paths.get(object).getFileName().toString();
                 if (!isFile) {
-                    if (isFolder(object)) {
+                    if (itemResult.get().isDir()) {
                         objectList.add(new BreadcrumbsDTO(objectName, object));
                     }
                 } else {
-                    if (!isFolder(object) && !object.isEmpty()) {
+                    if (!itemResult.get().isDir() && !object.isEmpty() && !object.endsWith("/")) {
                         objectList.add(new BreadcrumbsDTO(objectName, object));
                     }
                 }
@@ -54,9 +55,5 @@ public abstract class ObjectService {
             }
         });
         return objectList;
-    }
-
-    private boolean isFolder(String object){
-        return object.endsWith("/");
     }
 }

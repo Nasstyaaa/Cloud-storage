@@ -11,4 +11,4 @@ public class FileStorageApplication {
     }
 }
 //TODO логи
-//TODO перекидывать на главную при несуществующем пути к папке и пустые папки
+//TODO пустые папки

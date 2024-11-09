@@ -6,6 +6,7 @@ import io.minio.messages.Item;
 import org.nastya.filestorage.DTO.BreadcrumbsDTO;
 import org.nastya.filestorage.exception.SearchFileError;
 import org.nastya.filestorage.util.MinioUtil;
+import org.nastya.filestorage.util.PathUtil;
 import org.springframework.stereotype.Service;
 
 
@@ -28,7 +29,7 @@ public class SearchService extends ObjectService{
         Iterable<Result<Item>> results = MinioUtil.getAllFolderObjects(minioClient, bucket, path);
         results.forEach(itemResult -> {
             try {
-                String object = MinioUtil.getObjectWithoutUserPrefix(itemResult.get().objectName());
+                String object = PathUtil.getObjectWithoutFirstPrefix(itemResult.get().objectName());
                 String objectName = Paths.get(object).getFileName().toString();
                 String pathToFile = getPathToFile(object, objectName);
                 if(objectName.contains(query)){
