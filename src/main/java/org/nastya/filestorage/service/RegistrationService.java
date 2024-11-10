@@ -1,6 +1,7 @@
 package org.nastya.filestorage.service;
 
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.nastya.filestorage.DTO.UserDTO;
 import org.nastya.filestorage.exception.UserAlreadyExistsException;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.View;
 
 @Service
+@Slf4j
 public class RegistrationService {
 
     private final UserRepository userRepository;
@@ -31,9 +33,11 @@ public class RegistrationService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRole("ROLE_USER");
 
-        try{
+        try {
             userRepository.save(user);
-        } catch (DataIntegrityViolationException e){
+            log.info("User {} successfully registered", user.getUsername());
+        } catch (DataIntegrityViolationException e) {
+            log.info("An existing user {} is being registered", user.getUsername());
             throw new UserAlreadyExistsException();
         }
     }

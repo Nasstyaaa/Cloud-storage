@@ -3,6 +3,7 @@ package org.nastya.filestorage.service;
 import io.minio.MinioClient;
 import io.minio.Result;
 import io.minio.messages.Item;
+import lombok.extern.slf4j.Slf4j;
 import org.nastya.filestorage.DTO.BreadcrumbsDTO;
 import org.nastya.filestorage.exception.SearchFileError;
 import org.nastya.filestorage.util.MinioUtil;
@@ -17,13 +18,14 @@ import java.util.List;
 import static org.nastya.filestorage.util.PathUtil.getPathToFile;
 
 @Service
-public class SearchService extends ObjectService{
+@Slf4j
+public class SearchService extends ObjectService {
 
     public SearchService(MinioClient minioClient) {
         super(minioClient);
     }
 
-    public List<BreadcrumbsDTO> searchObject(String query, String path){
+    public List<BreadcrumbsDTO> searchObject(String query, String path) {
         List<BreadcrumbsDTO> foundedObjects = new ArrayList<>();
 
         Iterable<Result<Item>> results = MinioUtil.getAllFolderObjects(minioClient, bucket, path);
@@ -32,10 +34,12 @@ public class SearchService extends ObjectService{
                 String object = PathUtil.getObjectWithoutFirstPrefix(itemResult.get().objectName());
                 String objectName = Paths.get(object).getFileName().toString();
                 String pathToFile = getPathToFile(object, objectName);
-                if(objectName.contains(query)){
+                if (objectName.contains(query)) {
                     foundedObjects.add(new BreadcrumbsDTO(objectName, pathToFile));
                 }
-            }catch (Exception e){
+                log.info("The files on the request {} were successfully found", query);
+            } catch (Exception e) {
+                log.warn("Error with minio during file search");
                 throw new SearchFileError();
             }
 

@@ -1,6 +1,7 @@
 package org.nastya.filestorage.service;
 
 import io.minio.*;
+import lombok.extern.slf4j.Slf4j;
 import org.nastya.filestorage.DTO.BreadcrumbsDTO;
 import org.nastya.filestorage.DTO.file.*;
 import org.nastya.filestorage.DTO.folder.FolderRequestDTO;
@@ -13,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @Service
+@Slf4j
 public class FileService extends ObjectService {
 
     @Autowired
@@ -33,7 +35,9 @@ public class FileService extends ObjectService {
                             .object(requestDTO.getPath() + file.getOriginalFilename())
                             .stream(file.getInputStream(), file.getSize(), -1)
                             .build());
+            log.info("File {} successfully uploaded", file.getOriginalFilename());
         } catch (Exception e) {
+            log.warn("An error occurred while uploading the file {}", file.getOriginalFilename());
             throw new FileException("Error uploading the file, try again");
         }
     }
@@ -45,8 +49,10 @@ public class FileService extends ObjectService {
                             .bucket(bucket)
                             .object(requestDTO.getPath())
                             .build());
+            log.info("File {} successfully download", requestDTO.getNameFile());
             return new ByteArrayResource(object.readAllBytes());
         } catch (Exception e) {
+            log.warn("An error occurred while downloading the file {}", requestDTO.getNameFile());
             throw new FileException("Error downloading the file, try again");
         }
     }
@@ -58,9 +64,10 @@ public class FileService extends ObjectService {
                     RemoveObjectArgs.builder()
                             .bucket(bucket)
                             .object(requestDTO.getPath())
-                            .build()
-            );
+                            .build());
+            log.info("File {} successfully removed", requestDTO.getNameFile());
         } catch (Exception e) {
+            log.warn("An error occurred while removing the file {}", requestDTO.getNameFile());
             throw new FileException("File deletion error, try again");
         }
     }
@@ -78,9 +85,10 @@ public class FileService extends ObjectService {
                             .object(sourcePath)
                             .build())
                     .build());
-
             remove(new RemoveFileRequestDTO("", requestDTO.getPath()));
+            log.info("File {} successfully renamed", requestDTO.getNameFile());
         } catch (Exception e) {
+            log.warn("An error occurred while renaming the file {}", requestDTO.getNameFile());
             throw new FileException("File renaming error, try again");
         }
     }

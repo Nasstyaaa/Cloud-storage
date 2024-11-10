@@ -3,8 +3,7 @@ package org.nastya.filestorage.service;
 import io.minio.*;
 import io.minio.errors.*;
 import io.minio.messages.Item;
-import org.apache.tomcat.util.http.fileupload.FileItem;
-import org.apache.tomcat.util.http.fileupload.disk.DiskFileItemFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.nastya.filestorage.DTO.BreadcrumbsDTO;
 import org.nastya.filestorage.DTO.file.*;
 import org.nastya.filestorage.DTO.folder.*;
@@ -17,16 +16,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 @Service
+@Slf4j
 public class FolderService extends ObjectService {
     private final FileService fileService;
 
@@ -47,7 +44,9 @@ public class FolderService extends ObjectService {
             for (MultipartFile file : requestDTO.getFolder()) {
                 fileService.upload(new UploadFileRequestDTO(file, requestDTO.getPath()));
             }
+            log.info("Folder {} successfully uploaded", (Object) requestDTO.getFolder());
         } catch (Exception e) {
+            log.warn("An error occurred while uploading the folder {}", (Object) requestDTO.getFolder());
             throw new FolderException("Folder upload error, try again");
         }
     }
@@ -57,7 +56,7 @@ public class FolderService extends ObjectService {
         MultipartFile lastFile = files[files.length - 1];
         String[] pathParts = lastFile.getOriginalFilename().split("/");
         String fullPath = requestDTO.getPath();
-        for (int i = 0; i < pathParts.length-1; i++) {
+        for (int i = 0; i < pathParts.length - 1; i++) {
             fullPath += pathParts[i] + "/";
             minioClient.putObject(
                     PutObjectArgs.builder()
@@ -66,6 +65,7 @@ public class FolderService extends ObjectService {
                             .stream(new ByteArrayInputStream(new byte[]{}), 0, -1)
                             .build());
         }
+        log.info("Empty folders {} successfully uploaded", fullPath);
     }
 
 
@@ -74,7 +74,9 @@ public class FolderService extends ObjectService {
         results.forEach(itemResult -> {
             try {
                 fileService.remove(new RemoveFileRequestDTO("", itemResult.get().objectName()));
+                log.info("Folder {} successfully removed", requestDTO.getNameFolder());
             } catch (Exception e) {
+                log.warn("An error occurred while removing the folder {}", requestDTO.getNameFolder());
                 throw new FolderException("Folder deletion error, try again");
             }
         });
@@ -88,7 +90,9 @@ public class FolderService extends ObjectService {
                 String fileName = "/" + PathUtil.getObjectPathWithoutPrefix(itemResult.get().objectName(), requestDTO.getPath());
                 fileService.rename(new RenameFileRequestDTO("", requestDTO.getNewPath() + fileName,
                         requestDTO.getPath() + fileName));
+                log.info("Folder {} successfully renamed", requestDTO.getNameFolder());
             } catch (Exception e) {
+                log.warn("An error occurred while renaming the folder {}", requestDTO.getNameFolder());
                 throw new FolderException("Folder renaming error, try again");
             }
         });
@@ -103,7 +107,9 @@ public class FolderService extends ObjectService {
                 String objectName = PathUtil.getObjectPathWithoutPrefix(itemResult.get().objectName(), requestDTO.getPath());
                 addFileToZip(zipOutputStream, new DownloadFileRequestDTO(objectName, itemResult.get().objectName()));
             }
+            log.info("Folder {} successfully downloading", requestDTO.getNameFolder());
         } catch (Exception e) {
+            log.warn("An error occurred while downloading the folder {}", requestDTO.getNameFolder());
             throw new FolderException("Error downloading the folder, try again");
         }
 

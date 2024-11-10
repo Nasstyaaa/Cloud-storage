@@ -23,14 +23,14 @@ public class RegistrationController {
     }
 
     @GetMapping
-    public String registrationPage(@ModelAttribute("user") UserDTO userDTO){
+    public String registrationPage(@ModelAttribute("user") UserDTO userDTO) {
         return "registration";
     }
 
     @PostMapping
     public String performRegistration(@ModelAttribute("user") @Valid UserDTO userDTO,
-                                      BindingResult bindingResult){
-        if (bindingResult.hasErrors()){
+                                      BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
             return "registration";
         }
         registrationService.register(userDTO);

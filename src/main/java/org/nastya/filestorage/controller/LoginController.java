@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class LoginController {
 
     @GetMapping
-    public String loginPage(@ModelAttribute("user") UserDTO userDTO){
+    public String loginPage(@ModelAttribute("user") UserDTO userDTO) {
         return "login";
     }
 }

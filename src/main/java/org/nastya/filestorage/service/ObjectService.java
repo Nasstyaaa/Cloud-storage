@@ -3,6 +3,7 @@ package org.nastya.filestorage.service;
 import io.minio.MinioClient;
 import io.minio.Result;
 import io.minio.messages.Item;
+import lombok.extern.slf4j.Slf4j;
 import org.nastya.filestorage.DTO.BreadcrumbsDTO;
 import org.nastya.filestorage.DTO.folder.FolderRequestDTO;
 import org.nastya.filestorage.exception.EmptyFolderException;
@@ -18,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Slf4j
 public abstract class ObjectService {
 
     @Value("${minio.bucket}")
@@ -35,6 +37,7 @@ public abstract class ObjectService {
 
         Iterable<Result<Item>> results = MinioUtil.getFolderObjects(minioClient, bucket, requestDTO.getPath());
         if (!results.iterator().hasNext()) {
+            log.info("A non-existent path to the folder has been sent to the server");
             throw new EmptyFolderException();
         }
         results.forEach(itemResult -> {
@@ -51,9 +54,11 @@ public abstract class ObjectService {
                     }
                 }
             } catch (Exception e) {
+                log.error("Error accessing the minio while searching for users objects");
                 throw new InternalServerException();
             }
         });
+        log.info("The objects in the user's folder were successfully found");
         return objectList;
     }
 }

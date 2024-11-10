@@ -8,7 +8,6 @@ import org.nastya.filestorage.DTO.file.UploadFileRequestDTO;
 import org.nastya.filestorage.exception.EmptyObjectNameException;
 import org.nastya.filestorage.security.CustomUserDetails;
 import org.nastya.filestorage.service.FileService;
-import org.nastya.filestorage.util.MinioUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.ResponseEntity;
@@ -46,7 +45,7 @@ public class FileController {
 
     @GetMapping("/download")
     public ResponseEntity<ByteArrayResource> downloadFile(@ModelAttribute("files") DownloadFileRequestDTO requestDTO,
-                                                          @AuthenticationPrincipal CustomUserDetails userDetails){
+                                                          @AuthenticationPrincipal CustomUserDetails userDetails) {
         String fullPath = getFullPath(userDetails.getId(), requestDTO.getPath());
         requestDTO.setPath(fullPath);
 
@@ -60,7 +59,7 @@ public class FileController {
 
     @PostMapping("/remove")
     public String removeFile(@ModelAttribute("files") RemoveFileRequestDTO requestDTO,
-                             @AuthenticationPrincipal CustomUserDetails userDetails){
+                             @AuthenticationPrincipal CustomUserDetails userDetails) {
         String pathToFile = getPathToFile(requestDTO.getPath(), requestDTO.getNameFile());
         String fullPath = getFullPath(userDetails.getId(), requestDTO.getPath());
         requestDTO.setPath(fullPath);
@@ -72,8 +71,8 @@ public class FileController {
 
     @PostMapping("/rename")
     public String renameFile(@ModelAttribute("files") RenameFileRequestDTO requestDTO,
-                             @AuthenticationPrincipal CustomUserDetails userDetails){
-        if (requestDTO.getNewPath().isEmpty()){
+                             @AuthenticationPrincipal CustomUserDetails userDetails) {
+        if (requestDTO.getNewPath().isEmpty()) {
             throw new EmptyObjectNameException();
         }
 
