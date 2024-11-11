@@ -48,7 +48,7 @@ services:
       timeout: 5s
       retries: 5
   file-storage:
-    image: nastyalk/filestorage:2.3
+    image: nastyalk/filestorage:2.5
     build: ./
     ports:
       - "8080:8080"

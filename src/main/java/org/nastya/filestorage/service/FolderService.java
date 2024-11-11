@@ -40,7 +40,7 @@ public class FolderService extends ObjectService {
 
     public void upload(UploadFolderRequestDTO requestDTO) {
         try {
-            uploadEmptyFolder(requestDTO);
+            uploadAllFolders(requestDTO);
             for (MultipartFile file : requestDTO.getFolder()) {
                 fileService.upload(new UploadFileRequestDTO(file, requestDTO.getPath()));
             }
@@ -51,21 +51,25 @@ public class FolderService extends ObjectService {
         }
     }
 
-    private void uploadEmptyFolder(UploadFolderRequestDTO requestDTO) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+    private void uploadAllFolders(UploadFolderRequestDTO requestDTO) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         MultipartFile[] files = requestDTO.getFolder();
         MultipartFile lastFile = files[files.length - 1];
         String[] pathParts = lastFile.getOriginalFilename().split("/");
         String fullPath = requestDTO.getPath();
         for (int i = 0; i < pathParts.length - 1; i++) {
             fullPath += pathParts[i] + "/";
-            minioClient.putObject(
-                    PutObjectArgs.builder()
-                            .bucket(bucket)
-                            .object(fullPath)
-                            .stream(new ByteArrayInputStream(new byte[]{}), 0, -1)
-                            .build());
+            uploadEmptyFolder(fullPath);
         }
         log.info("Empty folders {} successfully uploaded", fullPath);
+    }
+
+    public void uploadEmptyFolder(String path) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+        minioClient.putObject(
+                PutObjectArgs.builder()
+                        .bucket(bucket)
+                        .object(path)
+                        .stream(new ByteArrayInputStream(new byte[]{}), 0, -1)
+                        .build());
     }
 
 
